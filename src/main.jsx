@@ -7,3 +7,10 @@ import './index.css';
 createRoot(document.getElementById('root')).render(
   <RouterProvider router={router}/>
 )
+
+// Service worker: la app abre más rápido y se puede instalar en el celular
+if ("serviceWorker" in navigator && import.meta.env.PROD) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register(`${import.meta.env.BASE_URL}sw.js`).catch(() => {});
+  });
+}
