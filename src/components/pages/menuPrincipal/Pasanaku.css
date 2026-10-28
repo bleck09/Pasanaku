@@ -1537,3 +1537,50 @@ button.pk-chip { font-family: inherit; }
 /* Imagen del cerdito en las ventanas de confirmación */
 .pk-confirmar-imagen { width: 130px; aspect-ratio: 440 / 380; margin-top: -6px; }
 .pk-confirmar-imagen svg { width: 100%; height: 100%; overflow: visible; filter: drop-shadow(0 10px 12px rgba(24, 60, 110, 0.2)); }
+
+/* Perfil moderno: portada, foto grande con cámara, chips y pestañas en píldora */
+.pk-perfil-vista { max-width: 860px; }
+.pf-hero { padding: 0; overflow: hidden; }
+.pf-portada { position: relative; height: 150px; overflow: hidden; }
+.pf-circ { position: absolute; border-radius: 50%; background: rgba(255, 255, 255, 0.16); }
+.pf-circ.c1 { width: 220px; height: 220px; top: -90px; right: -50px; }
+.pf-circ.c2 { width: 150px; height: 150px; bottom: -80px; left: 12%; background: rgba(255, 255, 255, 0.1); }
+.pf-cuerpo { display: grid; justify-items: center; gap: 8px; padding: 0 18px 20px; text-align: center; }
+.pf-avatar { position: relative; margin-top: -58px; }
+.pf-avatar .pk-avatar-grande { border-width: 5px; }
+.pf-camara { position: absolute; right: 2px; bottom: 4px; width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: var(--primary); color: #fff; border: 3px solid #fff; cursor: pointer; box-shadow: 0 6px 14px rgba(47, 109, 181, 0.35); }
+.pf-camara.off { opacity: 0.5; pointer-events: none; }
+.pf-camara input { display: none; }
+.pf-cuerpo h1 { margin: 6px 0 0; font-size: 1.5rem; overflow-wrap: anywhere; }
+.pf-chips { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; }
+.pf-chip { display: inline-flex; align-items: center; gap: 6px; padding: 5px 12px; border-radius: 999px; background: var(--surface); border: 1px solid var(--border-glass); color: var(--text-dim); font-size: 0.82rem; font-weight: 600; overflow-wrap: anywhere; }
+.pf-chip.admin { background: rgba(142, 116, 212, 0.14); border-color: transparent; color: #6B52B8; }
+.pf-chip.jugador { background: rgba(74, 143, 214, 0.14); border-color: transparent; color: var(--primary-text); }
+.pf-acciones { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin-top: 6px; }
+.pf-acciones label.pk-btn { cursor: pointer; }
+.pf-tabs { display: flex; gap: 6px; padding: 6px; margin-bottom: 1rem; border-radius: 18px; background: var(--bg-card); border: 1px solid var(--border-glass); box-shadow: var(--shadow); overflow-x: auto; }
+.pf-tabs button { flex: 1; display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 11px 14px; border: 0; border-radius: 13px; background: transparent; color: var(--text-dim); font-family: inherit; font-weight: 600; font-size: 0.9rem; cursor: pointer; white-space: nowrap; transition: background 0.15s, color 0.15s; }
+.pf-tabs button:hover { color: var(--text-main); }
+.pf-tabs button.activo { background: linear-gradient(135deg, #4A8FD6, #2F6DB5); color: #fff; box-shadow: 0 8px 18px rgba(47, 109, 181, 0.3); }
+.pf-info h3 { margin: 0 0 4px; }
+.pf-info dl { display: grid; gap: 8px; margin: 10px 0; }
+.pf-info dl > div { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 12px 14px; border-radius: 14px; background: var(--surface); }
+.pf-info dt { color: var(--text-dim); font-size: 0.85rem; }
+.pf-info dd { margin: 0; font-weight: 700; text-align: right; overflow-wrap: anywhere; }
+@media (max-width: 640px) {
+  .pf-portada { height: 120px; }
+  .pf-avatar { margin-top: -50px; }
+  .pf-tabs button { padding: 10px 8px; font-size: 0.82rem; gap: 5px; }
+}
+
+/* Editor de la foto de perfil */
+.ef { display: grid; gap: 14px; margin-top: 0.8rem; }
+.ef-escenario { position: relative; width: 100%; max-width: 340px; aspect-ratio: 1; margin: 0 auto; border-radius: 20px; overflow: hidden; background: #101826; touch-action: none; cursor: grab; user-select: none; }
+.ef-escenario:active { cursor: grabbing; }
+.ef-imagen { position: absolute; left: 50%; top: 50%; max-width: none; pointer-events: none; will-change: transform; }
+.ef-mascara { position: absolute; inset: 0; pointer-events: none; background: radial-gradient(circle closest-side at center, transparent calc(100% - 1px), rgba(8, 14, 26, 0.62) 100%); }
+.ef-mascara::after { content: ""; position: absolute; inset: 0; border-radius: 50%; border: 2px solid rgba(255, 255, 255, 0.85); }
+.ef-pista { position: absolute; left: 50%; bottom: 10px; transform: translateX(-50%); display: inline-flex; align-items: center; gap: 6px; padding: 4px 12px; border-radius: 999px; background: rgba(8, 14, 26, 0.6); color: #fff; font-size: 0.75rem; pointer-events: none; }
+.ef-zoom { display: flex; align-items: center; gap: 8px; padding: 0 4px; }
+.ef-zoom input { flex: 1; min-width: 0; accent-color: var(--primary); }
+.ef-zoom strong { min-width: 38px; text-align: right; font-size: 0.85rem; color: var(--primary-text); }

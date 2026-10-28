@@ -6,19 +6,22 @@ import { deleteDoc, doc, getDoc, setDoc, updateDoc, writeBatch } from "firebase/
 import { ref } from "firebase/storage";
 import { ocupado, subirConProgreso } from "./ocupado";
 import { auth, db, storage } from "../../../firebase";
-import { FiCamera, FiGrid, FiLock, FiTrash2, FiUser } from "react-icons/fi";
+import { FiAtSign, FiCamera, FiGrid, FiLock, FiShield, FiTrash2, FiUser } from "react-icons/fi";
 import Avatar from "./Avatar";
 import { validarClave } from "./acciones";
 import { hashClave, ITERACIONES } from "./claves";
 import { probarClave } from "./accesoJugador";
-import { comprimirImagen, extensionDe } from "./imagenes";
+import { extensionDe } from "./imagenes";
+import EditorFoto from "./EditorFoto";
+import { portadaDe } from "./portadas";
 import QRPerfil from "./QRPerfil";
 import CampoClave from "./CampoClave";
 import "./Pasanaku.css";
 
 // Perfil de la persona que inició sesión, en secciones: foto, contraseña y QR para cobrar (administrador y jugadores)
 const Perfil = ({ id, nombre, usuario, rol, foto, onFoto }) => {
-  const [seccion, setSeccion] = useState("foto"); // foto | clave | qr
+  const [seccion, setSeccion] = useState("info"); // info | clave | qr
+  const [porEditar, setPorEditar] = useState(null); // imagen elegida que se está ajustando
   const [subiendo, setSubiendo] = useState(false);
   const [actual, setActual] = useState("");
   const [nueva, setNueva] = useState("");
@@ -32,17 +35,21 @@ const Perfil = ({ id, nombre, usuario, rol, foto, onFoto }) => {
     onFoto(fotoUrl);
   };
 
-  const cambiarFoto = async (e) => {
+  const elegirFoto = (e) => {
     const original = e.target.files[0];
     e.target.value = "";
     if (!original) return;
     if (!original.type.startsWith("image/")) return toast.error("Elige una imagen.");
+    setPorEditar(original);
+  };
+
+  const subirFoto = async (recortada) => {
+    setPorEditar(null);
     setSubiendo(true);
-    const trabajo = ocupado.iniciar({ titulo: "Subiendo tu foto...", texto: "Optimizando y guardando la imagen." });
+    const trabajo = ocupado.iniciar({ titulo: "Subiendo tu foto...", texto: "Guardando la imagen." });
     try {
-      const liviana = await comprimirImagen(original, 512, 0.85);
-      const archivo = ref(storage, `perfiles/${id}_${Date.now()}.${extensionDe(liviana)}`);
-      const url = await subirConProgreso(archivo, liviana, trabajo.progreso);
+      const archivo = ref(storage, `perfiles/${id}_${Date.now()}.${extensionDe(recortada)}`);
+      const url = await subirConProgreso(archivo, recortada, trabajo.progreso);
       trabajo.texto("Guardando tu foto...");
       await guardarFoto(url);
       toast.success("Foto actualizada");
@@ -114,32 +121,48 @@ const Perfil = ({ id, nombre, usuario, rol, foto, onFoto }) => {
 
   return (
     <div className="pk-view pk-perfil-vista">
-      <div className="pk-card pk-perfil-cab">
-        <Avatar nombre={nombre} foto={foto} tam={76} className="pk-avatar-grande" />
-        <div className="pk-perfil-cab-info">
-          <h2>{nombre}</h2>
-          <span className="pk-chip pk-chip-ok" style={{ cursor: "default" }}><FiUser /> {esAdmin ? "Administrador" : "Jugador"}</span>
-          {usuario && <small className="pkf-nota">Usuario: <strong>{usuario}</strong></small>}
+      <div className="pk-card pf-hero">
+        <div className="pf-portada" style={{ background: portadaDe(nombre) }}>
+          <span className="pf-circ c1" /><span className="pf-circ c2" />
         </div>
-      </div>
-
-      <div className="pk-segmento pk-perfil-tabs" role="tablist">
-        <button type="button" role="tab" aria-selected={seccion === "foto"} className={seccion === "foto" ? "activo" : ""} onClick={() => setSeccion("foto")}><FiCamera /> Mi foto</button>
-        <button type="button" role="tab" aria-selected={seccion === "clave"} className={seccion === "clave" ? "activo" : ""} onClick={() => setSeccion("clave")}><FiLock /> Contraseña</button>
-        <button type="button" role="tab" aria-selected={seccion === "qr"} className={seccion === "qr" ? "activo" : ""} onClick={() => setSeccion("qr")}><FiGrid /> Mi QR</button>
-      </div>
-
-      {seccion === "foto" && (
-        <div className="pk-card pk-perfil-seccion">
-          <h3>Mi foto</h3>
-          <p className="pkf-nota">Así te ven los demás en los grupos. Si no pones foto, se muestra un círculo con tus iniciales.</p>
-          <div className="pk-acciones-fila">
-            <label className={`pk-btn ${subiendo ? "pk-btn-off" : ""}`} style={{ cursor: "pointer" }}>
+        <div className="pf-cuerpo">
+          <div className="pf-avatar">
+            <Avatar nombre={nombre} foto={foto} tam={116} className="pk-avatar-grande" />
+            <label className={`pf-camara ${subiendo ? "off" : ""}`} title={foto ? "Cambiar foto" : "Poner mi foto"}>
+              <FiCamera />
+              <input type="file" accept="image/*" onChange={elegirFoto} disabled={subiendo} />
+            </label>
+          </div>
+          <h1>{nombre}</h1>
+          <div className="pf-chips">
+            {usuario && <span className="pf-chip"><FiAtSign /> {usuario}</span>}
+            <span className={`pf-chip ${esAdmin ? "admin" : "jugador"}`}>{esAdmin ? <FiShield /> : <FiUser />} {esAdmin ? "Administrador" : "Jugador"}</span>
+          </div>
+          <div className="pf-acciones">
+            <label className={`pk-btn ${subiendo ? "pk-btn-off" : ""}`}>
               <FiCamera /> {subiendo ? "Subiendo..." : foto ? "Cambiar foto" : "Poner mi foto"}
-              <input type="file" accept="image/*" onChange={cambiarFoto} disabled={subiendo} style={{ display: "none" }} />
+              <input type="file" accept="image/*" onChange={elegirFoto} disabled={subiendo} style={{ display: "none" }} />
             </label>
             {foto && <button type="button" className="pk-btn pk-btn-ghost" onClick={quitarFoto} disabled={subiendo}><FiTrash2 /> Quitar</button>}
           </div>
+        </div>
+      </div>
+
+      <div className="pf-tabs" role="tablist">
+        <button type="button" role="tab" aria-selected={seccion === "info"} className={seccion === "info" ? "activo" : ""} onClick={() => setSeccion("info")}><FiUser /> Información</button>
+        <button type="button" role="tab" aria-selected={seccion === "clave"} className={seccion === "clave" ? "activo" : ""} onClick={() => setSeccion("clave")}><FiLock /> Seguridad</button>
+        <button type="button" role="tab" aria-selected={seccion === "qr"} className={seccion === "qr" ? "activo" : ""} onClick={() => setSeccion("qr")}><FiGrid /> Mi QR</button>
+      </div>
+
+      {seccion === "info" && (
+        <div className="pk-card pk-perfil-seccion pf-info">
+          <h3>Información general</h3>
+          <dl>
+            <div><dt>Nombre</dt><dd>{nombre}</dd></div>
+            <div><dt>{esAdmin ? "Correo" : "Usuario"}</dt><dd>{usuario || "—"}</dd></div>
+            <div><dt>Rol</dt><dd>{esAdmin ? "Administrador" : "Jugador"}</dd></div>
+          </dl>
+          <p className="pkf-nota">Así te ven los demás en los grupos. Al elegir una foto podrás moverla y acercarla para decidir qué parte se muestra en el círculo.</p>
         </div>
       )}
 
@@ -157,6 +180,8 @@ const Perfil = ({ id, nombre, usuario, rol, foto, onFoto }) => {
       )}
 
       {seccion === "qr" && <QRPerfil id={id} />}
+
+      {porEditar && <EditorFoto archivo={porEditar} onListo={subirFoto} onCerrar={() => setPorEditar(null)} />}
     </div>
   );
 };
