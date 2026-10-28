@@ -160,7 +160,7 @@ const MenuPrincipal = () => {
       sessionStorage.clear();
       // Se borran también los datos guardados en el celular (por si lo usa otra persona) y se recarga la app
       try { await terminate(db); await clearIndexedDbPersistence(db); } catch { /* si no se pudo borrar, igual se cierra la sesión */ }
-      window.location.hash = "#/login";
+      window.location.hash = "#/";
       window.location.reload();
     } catch (error) {
       salidaLibre.current = false;
