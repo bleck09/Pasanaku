@@ -1369,3 +1369,18 @@ button.pk-chip { font-family: inherit; }
 .pk-multa-fila.perdonada { border-left-color: var(--border-glass); opacity: 0.8; }
 .pk-multa-info { flex: 1; min-width: 0; display: grid; gap: 2px; }
 .pk-multa-info small { color: var(--text-dim); font-size: 0.76rem; }
+
+/* Datos de acceso: que nunca se salgan de la pantalla */
+.pk-credenciales { min-width: 0; max-width: 100%; overflow: hidden; }
+.pk-cred-datos { grid-template-columns: repeat(auto-fit, minmax(min(100%, 200px), 1fr)); }
+.pk-cred-fila { min-width: 0; }
+.pk-cred-fila .pk-cred-datos { min-width: 0; flex: 1 1 240px; }
+.pk-cred-datos > div { min-width: 0; }
+.pk-cred-datos strong { overflow-wrap: anywhere; word-break: break-all; }
+.pk-credenciales .pk-nota-linea { overflow-wrap: anywhere; }
+.pk-credenciales > .pk-btn { justify-content: center; max-width: 100%; }
+@media (max-width: 640px) {
+  .pk-credenciales h3 { font-size: 1rem; overflow-wrap: anywhere; }
+  .pk-cred-datos { grid-template-columns: 1fr; }
+  .pk-cred-datos strong { font-size: 1.1rem; }
+}
