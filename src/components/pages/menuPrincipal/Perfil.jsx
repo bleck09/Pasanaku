@@ -3,7 +3,8 @@ import PropTypes from "prop-types";
 import toast from "react-hot-toast";
 import { EmailAuthProvider, reauthenticateWithCredential, updatePassword } from "firebase/auth";
 import { doc, getDoc, setDoc, updateDoc } from "firebase/firestore";
-import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
+import { ref } from "firebase/storage";
+import { ocupado, subirConProgreso } from "./ocupado";
 import { auth, db, storage } from "../../../firebase";
 import { FiCamera, FiGrid, FiLock, FiTrash2, FiUser } from "react-icons/fi";
 import Avatar from "./Avatar";
@@ -37,11 +38,13 @@ const Perfil = ({ id, nombre, usuario, rol, foto, onFoto }) => {
     if (!original) return;
     if (!original.type.startsWith("image/")) return toast.error("Elige una imagen.");
     setSubiendo(true);
+    const trabajo = ocupado.iniciar({ titulo: "Subiendo tu foto...", texto: "Optimizando y guardando la imagen." });
     try {
       const liviana = await comprimirImagen(original, 512, 0.85);
       const archivo = ref(storage, `perfiles/${id}_${Date.now()}.${extensionDe(liviana)}`);
-      await uploadBytes(archivo, liviana, { contentType: liviana.type });
-      await guardarFoto(await getDownloadURL(archivo));
+      const url = await subirConProgreso(archivo, liviana, trabajo.progreso);
+      trabajo.texto("Guardando tu foto...");
+      await guardarFoto(url);
       toast.success("Foto actualizada");
     } catch (err) {
       console.error("Foto de perfil:", err);
@@ -49,18 +52,21 @@ const Perfil = ({ id, nombre, usuario, rol, foto, onFoto }) => {
         ? "Firebase no permite guardar la foto (faltan publicar las reglas nuevas)."
         : `No se pudo actualizar la foto (${err.code || "error"}).`, { duration: 7000 });
     } finally {
+      await trabajo.terminar();
       setSubiendo(false);
     }
   };
 
   const quitarFoto = async () => {
     setSubiendo(true);
+    const trabajo = ocupado.iniciar({ titulo: "Quitando tu foto...", texto: "Un momento." });
     try {
       await guardarFoto("");
       toast.success("Foto quitada");
     } catch (err) {
       toast.error(`No se pudo quitar la foto (${err.code || "error"}).`);
     } finally {
+      await trabajo.terminar();
       setSubiendo(false);
     }
   };
@@ -72,6 +78,7 @@ const Perfil = ({ id, nombre, usuario, rol, foto, onFoto }) => {
     if (nueva !== repetir) return toast.error("Las contraseñas nuevas no coinciden.");
     if (nueva === actual) return toast.error("La contraseña nueva debe ser distinta a la actual.");
     setGuardando(true);
+    const trabajo = ocupado.iniciar({ titulo: "Guardando tu contraseña...", texto: "Un momento." });
     try {
       if (esAdmin) {
         await reauthenticateWithCredential(auth.currentUser, EmailAuthProvider.credential(auth.currentUser.email, actual));
@@ -95,6 +102,7 @@ const Perfil = ({ id, nombre, usuario, rol, foto, onFoto }) => {
         ? "La contraseña actual no es correcta."
         : `No se pudo cambiar la contraseña (${err.code || "error"}).`, { duration: 6000 });
     } finally {
+      await trabajo.terminar();
       setGuardando(false);
     }
   };

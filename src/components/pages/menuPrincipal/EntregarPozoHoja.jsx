@@ -2,7 +2,8 @@ import React, { useState } from "react";
 import PropTypes from "prop-types";
 import toast from "react-hot-toast";
 import { doc, getDoc, writeBatch } from "firebase/firestore";
-import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
+import { ref } from "firebase/storage";
+import { ocupado, subirConProgreso } from "./ocupado";
 import { auth, db, storage } from "../../../firebase";
 import { FiArrowLeft, FiCheck, FiAlertTriangle, FiDownload, FiCopy, FiSend } from "react-icons/fi";
 import Avatar from "./Avatar";
@@ -41,20 +42,22 @@ const EntregarPozoHoja = ({ grupo, persona, foto, monto, completos, total, total
     if (!ok) return;
 
     setSubiendo(true);
+    const trabajo = ocupado.iniciar({ titulo: "Entregando el pozo...", texto: "Subiendo el comprobante. No cierres esta página." });
     let comprobanteUrl;
     try {
       const archivoRef = ref(storage, `entregas/${grupo.id}/${persona.turno}_${Date.now()}.${extensionDe(archivo)}`);
-      await uploadBytes(archivoRef, archivo, { contentType: archivo.type });
-      comprobanteUrl = await getDownloadURL(archivoRef);
+      comprobanteUrl = await subirConProgreso(archivoRef, archivo, trabajo.progreso);
     } catch (err) {
       console.error("Subir comprobante de entrega:", err);
       toast.error(err.code === "storage/unauthorized"
         ? "Firebase no permite subir el archivo (faltan publicar las reglas de Storage)."
         : `No se pudo subir el archivo (${err.code || "error"}).`, { duration: 7000 });
+      await trabajo.terminar();
       setSubiendo(false);
       return;
     }
     try {
+      trabajo.texto("Registrando la entrega...");
       const usuario = auth.currentUser;
       const perfil = usuario ? (await getDoc(doc(db, "usuario", usuario.uid)).catch(() => null))?.data() : null;
       const id = entregaId(grupo.id, persona.turno);
@@ -74,11 +77,13 @@ const EntregarPozoHoja = ({ grupo, persona, foto, monto, completos, total, total
         estado: persona.turno >= totalRondas ? "finalizado" : "activo",
       });
       await batch.commit();
+      await trabajo.terminar();
       setSubiendo(false);
       setHecho(true);
     } catch (err) {
       console.error("Registrar entrega:", err);
       toast.error(`No se pudo registrar la entrega (${err.code || "error"}). Revisa las reglas de Firestore.`, { duration: 7000 });
+      await trabajo.terminar();
       setSubiendo(false);
     }
   };

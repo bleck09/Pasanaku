@@ -6,6 +6,7 @@ import { db } from "../../../firebase";
 import { FiCamera, FiSave, FiTrash2, FiLock } from "react-icons/fi";
 import { aDataUrl, comprimirImagen } from "./imagenes";
 import { useCuentaPago } from "./useCuentaPago";
+import { ocupado } from "./ocupado";
 import { fechaHora } from "./pasanakuUtils";
 import "./Pasanaku.css";
 
@@ -38,6 +39,7 @@ const QRPerfil = ({ id }) => {
 
   const guardar = async () => {
     setGuardando(true);
+    const trabajo = ocupado.iniciar({ titulo: "Guardando tu QR...", texto: "Un momento." });
     try {
       await setDoc(doc(db, "cuentas_cobro", id), { qr, nota: nota.trim(), actualizado: Date.now() });
       toast.success(qr ? "QR guardado" : "QR eliminado");
@@ -45,6 +47,7 @@ const QRPerfil = ({ id }) => {
       console.error("Guardar QR de cobro:", err);
       toast.error(`No se pudo guardar (${err.code || "error"}). Revisa las reglas de Firestore.`, { duration: 7000 });
     }
+    await trabajo.terminar();
     setGuardando(false);
   };
 

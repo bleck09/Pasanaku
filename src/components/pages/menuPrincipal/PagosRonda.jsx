@@ -8,6 +8,7 @@ import { confirmar } from "./Confirmar";
 import VisorImagen from "./VisorImagen";
 import Comprobante from "./Comprobante";
 import MostrarMas from "./MostrarMas";
+import { ocupado } from "./ocupado";
 import RegistrarPagoModal from "./RegistrarPagoModal";
 import PagoEnviadoModal from "./PagoEnviadoModal";
 import { usePaginado } from "./usePaginado";
@@ -40,11 +41,16 @@ const PagosRonda = ({ grupo, ronda, lista, pagos, multas = [], soloLectura = fal
   const totalRondas = Math.max(grupo.cupos || lista.length, 1);
 
   const confirmarPago = async (pago) => {
+    const trabajo = ocupado.iniciar({ titulo: "Confirmando el pago...", texto: "Un momento." });
     try {
       await updateDoc(doc(db, "pagos", pago.id), { estado: "confirmado" });
       const quien = lista.find((x) => x.id === pago.participanteId)?.nombre || "la persona";
+      await trabajo.terminar();
       setAviso({ titulo: "¡Pago aceptado!", monto: pago.monto, texto: `El pago de ${quien} de la ronda ${pago.ronda} quedó confirmado y ya cuenta en su cuota.` });
-    } catch { toast.error("No se pudo confirmar."); }
+    } catch {
+      await trabajo.terminar();
+      toast.error("No se pudo confirmar.");
+    }
   };
 
   const quitar = async (pago, rechazo) => {
@@ -52,8 +58,10 @@ const PagosRonda = ({ grupo, ronda, lista, pagos, multas = [], soloLectura = fal
       ? { titulo: "¿Rechazar este comprobante?", mensaje: "La persona deberá volver a enviarlo.", textoConfirmar: "Rechazar", peligro: true }
       : { titulo: "¿Eliminar este pago confirmado?", mensaje: "Dejará de contar en la cuota de la ronda.", textoConfirmar: "Eliminar", peligro: true });
     if (!ok) return;
+    const trabajo = ocupado.iniciar({ titulo: rechazo ? "Rechazando el comprobante..." : "Eliminando el pago...", texto: "Un momento." });
     try { await deleteDoc(doc(db, "pagos", pago.id)); }
     catch { toast.error("No se pudo quitar el pago."); }
+    finally { await trabajo.terminar(); }
   };
 
   const filas = (r) => (
@@ -92,11 +100,14 @@ const PagosRonda = ({ grupo, ronda, lista, pagos, multas = [], soloLectura = fal
       ? { titulo: `¿Confirmar la multa de ${p.nombre}?`, mensaje: `Se sumarán ${money(monto)} a su cuota de la ronda ${n}. No podrá pagar rondas siguientes hasta completarla.`, textoConfirmar: "Sí, confirmar multa" }
       : { titulo: `¿Perdonar la multa de ${p.nombre}?`, mensaje: `Ya no se le cobrarán ${money(monto)} por esta ronda.`, textoConfirmar: "Sí, perdonar" });
     if (!ok) return;
+    const trabajo = ocupado.iniciar({ titulo: estado === "confirmada" ? "Confirmando la multa..." : "Perdonando la multa...", texto: "Un momento." });
     try {
       await setDoc(doc(db, "multas", multaId(grupo.id, p.id, n)), { pasanakuId: grupo.id, participanteId: p.id, ronda: n, estado, monto, fecha: Date.now() });
       toast.success(estado === "confirmada" ? "Multa confirmada" : "Multa perdonada");
     } catch {
       toast.error("No se pudo guardar la decisión. ¿Publicaste las reglas de Firestore?");
+    } finally {
+      await trabajo.terminar();
     }
   };
 

@@ -22,6 +22,7 @@ import Ruleta from './Ruleta';
 import Entregas from './Entregas';
 import CampanaPendientes from './CampanaPendientes';
 import MigracionSeguridad from './MigracionSeguridad';
+import OcupadoHost from './OcupadoHost';
 import Avatar from './Avatar';
 import Splash from './Splash';
 import { CLAVE_SESION } from './sesion';
@@ -163,6 +164,7 @@ const MenuPrincipal = () => {
   return (
     <div className="app-shell">
       <ConfirmHost />
+      <OcupadoHost />
       {role === 'administrador' && <MigracionSeguridad />}
 
       {menuAbierto && <div className="sidebar-overlay" onClick={() => setMenuAbierto(false)} />}

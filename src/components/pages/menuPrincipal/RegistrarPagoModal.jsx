@@ -2,7 +2,8 @@ import React, { useState } from "react";
 import PropTypes from "prop-types";
 import toast from "react-hot-toast";
 import { addDoc, collection } from "firebase/firestore";
-import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
+import { ref } from "firebase/storage";
+import { ocupado, subirConProgreso } from "./ocupado";
 import { db, storage } from "../../../firebase";
 import { FiCheck } from "react-icons/fi";
 import Modal from "./Modal";
@@ -24,29 +25,33 @@ const RegistrarPagoModal = ({ grupo, persona, foto, ronda, falta, onListo, onCer
     if (!(montoNum > 0)) return toast.error("Escribe un monto válido.");
     if (montoNum > falta) return toast.error(`Solo falta ${money(falta)} de esta ronda.`);
     setGuardando(true);
+    const trabajo = ocupado.iniciar({ titulo: "Registrando el pago...", texto: archivo ? "Subiendo el comprobante. No cierres esta ventana." : "Guardando el pago." });
     let comprobanteUrl = null;
     try {
       if (archivo) {
         const archivoRef = ref(storage, `comprobantes/${grupo.id}/${ronda}_${persona.id}_${Date.now()}.${extensionDe(archivo)}`);
-        await uploadBytes(archivoRef, archivo, { contentType: archivo.type });
-        comprobanteUrl = await getDownloadURL(archivoRef);
+        comprobanteUrl = await subirConProgreso(archivoRef, archivo, trabajo.progreso);
       }
     } catch (err) {
       console.error("Subir comprobante manual:", err);
       toast.error(err.code === "storage/unauthorized" ? "Firebase no permite subir el archivo (reglas de Storage)." : `No se pudo subir el archivo (${err.code || "error"}).`, { duration: 7000 });
+      await trabajo.terminar();
       setGuardando(false);
       return;
     }
     try {
+      trabajo.texto("Guardando el pago...");
       await addDoc(collection(db, "pagos"), {
         pasanakuId: grupo.id, ronda, participanteId: persona.id, uid: persona.uid || null,
         monto: montoNum, estado: "confirmado", manual: true, fecha: Date.now(),
         ...(comprobanteUrl ? { comprobanteUrl, comprobanteTipo: esPdf(archivo) ? "pdf" : "imagen" } : {}),
       });
+      await trabajo.terminar();
       onListo(montoNum);
     } catch (err) {
       console.error("Registrar pago:", err);
       toast.error(`No se pudo registrar el pago (${err.code || "error"}).`);
+      await trabajo.terminar();
       setGuardando(false);
     }
   };

@@ -6,6 +6,7 @@ import { db } from "../../../firebase";
 import { FiCamera, FiSave, FiTrash2 } from "react-icons/fi";
 import { comprimirImagen } from "./imagenes";
 import { useCuentaPago } from "./useCuentaPago";
+import { ocupado } from "./ocupado";
 import "./Pasanaku.css";
 
 const aDataUrl = (blob) => new Promise((resolver, rechazar) => {
@@ -46,6 +47,7 @@ const PanelCuentaPago = ({ grupo }) => {
   const guardar = async (e) => {
     e.preventDefault();
     setGuardando(true);
+    const trabajo = ocupado.iniciar({ titulo: "Guardando los datos de pago...", texto: "Un momento." });
     try {
       await setDoc(doc(db, "cuentas_pago", grupo.id), { pasanakuId: grupo.id, qr, ...campos, actualizado: Date.now() });
       await updateDoc(doc(db, "pasanakus", grupo.id), { qrListo: Boolean(qr) });
@@ -54,6 +56,7 @@ const PanelCuentaPago = ({ grupo }) => {
       console.error("Guardar cuenta de pago:", err);
       toast.error(`No se pudo guardar (${err.code || "error"}). Revisa las reglas de Firestore.`, { duration: 7000 });
     }
+    await trabajo.terminar();
     setGuardando(false);
   };
 

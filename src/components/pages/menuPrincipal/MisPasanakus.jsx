@@ -2,7 +2,8 @@ import React, { useEffect, useMemo, useState } from "react";
 import PropTypes from "prop-types";
 import toast from "react-hot-toast";
 import { addDoc, collection } from "firebase/firestore";
-import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
+import { ref } from "firebase/storage";
+import { ocupado, subirConProgreso } from "./ocupado";
 import { db, storage } from "../../../firebase";
 import { idSesion } from "./sesion";
 import { FiCheck, FiGift, FiClock, FiImage, FiCamera, FiFileText, FiArrowRight, FiDownload, FiChevronRight, FiLayers, FiPlay, FiAward, FiList, FiDollarSign, FiUsers, FiX, FiSearch, FiEye, FiGrid, FiCalendar, FiAlertTriangle } from "react-icons/fi";
@@ -99,29 +100,33 @@ const PagoModal = ({ grupo, ronda, yo, uid, mio, onCerrar }) => {
 
   const enviar = async () => {
     setSubiendo(true);
+    const trabajo = ocupado.iniciar({ titulo: "Enviando tu pago...", texto: "Estamos subiendo tu comprobante. No cierres esta ventana." });
     let comprobanteUrl;
     try {
       const storageRef = ref(storage, `comprobantes/${grupo.id}/${ronda}_${uid}_${Date.now()}.${extensionDe(archivo)}`);
-      await uploadBytes(storageRef, archivo, { contentType: archivo.type });
-      comprobanteUrl = await getDownloadURL(storageRef);
+      comprobanteUrl = await subirConProgreso(storageRef, archivo, trabajo.progreso);
     } catch (err) {
       console.error("Subir comprobante:", err);
       toast.error(err.code === "storage/unauthorized"
         ? "Firebase no permite subir el archivo (reglas de Storage sin publicar, o el archivo es muy pesado)."
         : `No se pudo subir el archivo (${err.code || "error"}).`, { duration: 7000 });
+      await trabajo.terminar();
       setSubiendo(false);
       return;
     }
     try {
+      trabajo.texto("Registrando tu pago...");
       await addDoc(collection(db, "pagos"), {
         pasanakuId: grupo.id, ronda, participanteId: yo.id, uid,
         monto: montoNum, estado: "revision", comprobanteUrl, comprobanteTipo: esPdf(archivo) ? "pdf" : "imagen", fecha: Date.now(),
       });
+      await trabajo.terminar();
       setSubiendo(false);
       setPaso("enviado");
     } catch (err) {
       console.error("Registrar pago:", err);
       toast.error(`No se pudo registrar el pago (${err.code || "error"}). Revisa las reglas de Firestore.`, { duration: 7000 });
+      await trabajo.terminar();
       setSubiendo(false);
     }
   };
