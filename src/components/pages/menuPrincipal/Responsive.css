@@ -468,3 +468,9 @@ img, svg, video { max-width: 100%; }
 .pk-visor-pdf-aviso strong { color: var(--text-main); font-size: 1.05rem; }
 .pk-visor-pdf-aviso p { margin: 0 0 6px; max-width: 320px; }
 .pk-visor-pdf-aviso .pk-btn { margin-top: 4px; }
+
+/* Encabezado de "Participantes": el botón del QR queda junto al título, como pastilla pequeña */
+@media (max-width: 640px) {
+  .pk-seccion-cab { flex-direction: row; align-items: center; justify-content: space-between; margin: 0.2rem 0 0.7rem; }
+  .pk-seccion-cab .pk-seccion-acciones .pk-btn:not(.pk-cta-fija) { width: auto; min-height: 36px; padding: 6px 12px; font-size: 0.8rem; }
+}

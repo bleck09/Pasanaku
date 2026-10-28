@@ -1398,3 +1398,33 @@ button.pk-chip { font-family: inherit; }
 .pk-ocupado-barra.indeterminada > span { position: absolute; width: 40%; animation: pk-ocupado-barra 1.1s ease-in-out infinite; }
 @keyframes pk-ocupado-barra { 0% { left: -40%; } 100% { left: 100%; } }
 @media (prefers-reduced-motion: reduce) { .pk-ocupado-moneda, .pk-ocupado-barra.indeterminada > span { animation: none; } }
+
+/* Resumen del jugador, más limpio: quién cobra + mi plazo, con aire entre bloques */
+.pk-resumen-cabeza { display: grid; gap: 14px; margin-bottom: 1.4rem; }
+.pk-plazo { display: flex; align-items: center; gap: 14px; padding: 14px 16px; border-radius: 20px; background: var(--bg-card); border: 1px solid var(--border-glass); box-shadow: var(--shadow); }
+.pk-plazo-icono { flex: none; width: 44px; height: 44px; border-radius: 14px; display: grid; place-items: center; font-size: 1.3rem; background: rgba(74, 143, 214, 0.14); color: var(--primary-text); }
+.pk-plazo-texto { flex: 1; min-width: 0; display: grid; gap: 1px; }
+.pk-plazo-texto .pk-etiqueta { font-size: 0.7rem; }
+.pk-plazo-texto strong { font-size: 1.1rem; line-height: 1.2; }
+.pk-plazo-texto small { color: var(--text-dim); font-size: 0.8rem; line-height: 1.4; }
+.pk-plazo-cuenta { flex: none; display: grid; justify-items: center; padding: 6px 12px; border-radius: 14px; background: var(--surface); border: 1px solid var(--border-glass); font-weight: 800; font-size: 1.05rem; line-height: 1.1; }
+.pk-plazo-cuenta small { color: var(--text-dim); font-size: 0.62rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.4px; }
+.pk-plazo.urgente { border-color: rgba(224, 160, 63, 0.7); background: linear-gradient(100deg, rgba(224, 160, 63, 0.16), var(--bg-card) 65%); }
+.pk-plazo.urgente .pk-plazo-icono { background: rgba(224, 160, 63, 0.25); color: #B87A1E; }
+.pk-plazo.vencido { border-color: rgba(212, 80, 79, 0.6); background: linear-gradient(100deg, rgba(212, 80, 79, 0.12), var(--bg-card) 65%); }
+.pk-plazo.vencido .pk-plazo-icono { background: rgba(212, 80, 79, 0.2); color: var(--danger); }
+.pk-plazo.vencido .pk-plazo-texto small { color: #B63737; font-weight: 600; }
+.pk-plazo.ok { border-color: rgba(46, 154, 107, 0.5); background: linear-gradient(100deg, rgba(46, 154, 107, 0.14), var(--bg-card) 65%); }
+.pk-plazo.ok .pk-plazo-icono { background: rgba(46, 154, 107, 0.2); color: var(--ok); }
+.pk-seccion-cab { margin-top: 0.2rem; }
+.pk-seccion-tit small { margin-left: 8px; color: var(--text-dim); font-weight: 500; font-size: 0.8rem; }
+@media (max-width: 640px) {
+  .pk-resumen-cabeza { gap: 12px; margin-bottom: 1.3rem; }
+  .pk-hero-ahora .pk-hero-recibe { grid-row: 2 / span 2; align-self: center; }
+  .pk-plazo { padding: 12px 14px; gap: 12px; }
+  .pk-plazo-icono { width: 40px; height: 40px; font-size: 1.15rem; }
+  .pk-plazo-texto strong { font-size: 1rem; }
+  /* el botón del QR es una pastilla pequeña junto al título, no una franja */
+  .pk-seccion-cab { flex-direction: row; align-items: center; justify-content: space-between; margin-bottom: 0.7rem; }
+  .pk-seccion-cab .pk-seccion-acciones .pk-btn:not(.pk-cta-fija) { width: auto; padding: 6px 12px; min-height: 36px; font-size: 0.8rem; }
+}

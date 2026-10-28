@@ -8,7 +8,7 @@ import { db, storage } from "../../../firebase";
 import { idSesion } from "./sesion";
 import { FiCheck, FiGift, FiClock, FiImage, FiCamera, FiFileText, FiArrowRight, FiDownload, FiChevronRight, FiLayers, FiPlay, FiAward, FiList, FiDollarSign, FiUsers, FiX, FiSearch, FiEye, FiGrid, FiCalendar, FiAlertTriangle } from "react-icons/fi";
 import { MdSavings } from "react-icons/md";
-import { describirFrecuencia, esConfirmado, estadoGrupo, estaIniciado, fechaRonda, fechaHora, formatFecha, money, resumenPago, useColeccion } from "./pasanakuUtils";
+import { describirFrecuencia, esConfirmado, estadoGrupo, estaIniciado, fechaRonda, fechaHora, formatFecha, limiteSinMulta, money, resumenPago, useColeccion } from "./pasanakuUtils";
 import { comprimirImagen, esPdf, extensionDe, kb, MAX_PDF } from "./imagenes";
 import Modal from "./Modal";
 import VisorImagen from "./VisorImagen";
@@ -258,10 +258,13 @@ const Detalle = ({ grupo, uid, onVolver }) => {
   const ronda = Math.min(grupo.rondaActual, Math.max(n, 1));
   const yo = lista.find((p) => p.uid === uid);
   const recibe = lista.find((p) => p.turno === ronda);
-  const anterior = lista.find((p) => p.turno === ronda - 1);
   const verRonda = Math.min(rondaVer ?? ronda, Math.max(n, 1));
   const fecha = fechaRonda(grupo, ronda);
-  const dias = diasPara(fecha);
+  // Plazo para pagar mi cuota: la fecha de la ronda; si hay multa, el último día sin multa (con días de gracia)
+  const limiteMs = limiteSinMulta(grupo, ronda);
+  const plazo = grupo.multa > 0 && limiteMs ? new Date(limiteMs) : fecha;
+  const diasPlazo = plazo ? diasPara(plazo) : null;
+  const plazoEstado = mio?.completo ? "ok" : diasPlazo === null ? "" : diasPlazo < 0 ? "vencido" : diasPlazo <= 1 ? "urgente" : "";
 
   const pago = (p, r = ronda) => resumenPago(pagos, p.id, r, grupo, multas);
   const mio = yo ? pago(yo) : null;
@@ -274,7 +277,6 @@ const Detalle = ({ grupo, uid, onVolver }) => {
   const siguienteRonda = ronda < n ? ronda + 1 : null; // se puede adelantar la cuota de la siguiente ronda
   const mioSig = yo && siguienteRonda ? pago(yo, siguienteRonda) : null;
   const pagaron = lista.filter((p) => pago(p).completo);
-  const cobrados = iniciado ? Math.min(Math.max(grupo.rondaActual - 1, 0), n) : 0; // personas a las que ya se les entregó el pozo
   const misPagos = yo ? pagos.filter((p) => p.participanteId === yo.id).sort((a, b) => (b.fecha || 0) - (a.fecha || 0)) : [];
   const enCurso = iniciado && !finalizado;
 
@@ -324,26 +326,36 @@ const Detalle = ({ grupo, uid, onVolver }) => {
             </div>
           )}
 
-          <div className="pk-hero">
-            <div className="pk-hero-item pk-hero-listo">
-              <span className="pk-hero-icono"><FiCheck /></span>
-              <span className="pk-etiqueta">Ya se pagó a</span>
-              <strong>{anterior && <Avatar nombre={anterior.nombre} foto={fotos.get(anterior.uid)} tam={30} />} {anterior ? anterior.nombre : "Nadie todavía"}</strong>
-              <small>{anterior ? `Ronda ${anterior.turno} · cobró el ${formatFecha(fechaRonda(grupo, anterior.turno))}` : "Es la primera ronda"}</small>
-            </div>
+          <div className="pk-resumen-cabeza">
             <div className="pk-hero-item pk-hero-ahora">
               <span className="pk-hero-icono"><FiGift /></span>
               <span className="pk-etiqueta">Ahora le toca a</span>
               <strong>{recibe && <Avatar nombre={recibe.nombre} foto={fotos.get(recibe.uid)} tam={40} />} {recibe?.nombre || "—"}{recibe?.uid === uid ? " (¡tú!)" : ""}</strong>
-              <span className="pk-hero-recibe">{recibe?.uid === uid ? "Recibes" : "Recibe"} {money(grupo.cuota * n)} este mes</span>
-              {dias !== null && dias >= 0 && <span className="pk-hero-dias"><FiClock /> {dias === 0 ? "Es hoy" : `Faltan ${dias} día${dias === 1 ? "" : "s"}`}</span>}
+              <span className="pk-hero-recibe">{recibe?.uid === uid ? "Recibes" : "Recibe"} {money(grupo.cuota * n)}</span>
             </div>
-            <div className="pk-hero-item">
-              <span className="pk-hero-icono"><FiUsers /></span>
-              <span className="pk-etiqueta">Este mes completaron</span>
-              <strong>{pagaron.length} de {total}</strong>
-              <small>{cobrados} de {n} ya cobraron en total</small>
-            </div>
+
+            {yo && (
+              <div className={`pk-plazo ${plazoEstado}`}>
+                <span className="pk-plazo-icono">{mio.completo ? <FiCheck /> : <FiClock />}</span>
+                <div className="pk-plazo-texto">
+                  <span className="pk-etiqueta">{mio.completo ? "Tu cuota" : "Plazo para pagar tu cuota"}</span>
+                  {mio.completo ? (
+                    <strong>¡Ya pagaste esta ronda!</strong>
+                  ) : mio.porPagar === 0 ? (
+                    <strong>Tu pago está en revisión</strong>
+                  ) : (
+                    <>
+                      <strong>Hasta el {formatFecha(plazo)}</strong>
+                      <small>
+                        {diasPlazo === null ? "" : diasPlazo < 0 ? `Venció hace ${-diasPlazo} día${diasPlazo === -1 ? "" : "s"}` : diasPlazo === 0 ? "Vence hoy" : diasPlazo === 1 ? "Vence mañana" : `Te quedan ${diasPlazo} días`}
+                        {grupo.multa > 0 && (diasPlazo !== null && diasPlazo < 0 ? ` · se aplica multa de ${money(grupo.multa)}` : ` · después, multa de ${money(grupo.multa)}`)}
+                      </small>
+                    </>
+                  )}
+                </div>
+                <span className="pk-plazo-cuenta">{pagaron.length}/{total}<small>pagaron</small></span>
+              </div>
+            )}
           </div>
 
           <div className="pk-seccion-cab">
