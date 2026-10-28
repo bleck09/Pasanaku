@@ -70,15 +70,17 @@ const MenuPrincipal = () => {
   const ADMIN = ['administrador'];
   const JUGADOR = ['jugador'];
   const menuItems = [
-    { id: 'resumen', label: 'Resumen', icon: <FiPieChart />, category: 'Pasanaku', component: <Resumen onIr={irARevisar} />, roles: ADMIN },
-    { id: 'mis', label: 'Mis pasanakus', icon: <FiLayers />, category: 'Pasanaku', component: <MisPasanakus />, roles: [...ADMIN, ...JUGADOR] },
-    { id: 'grupos', label: 'Pasanakus', icon: <FiGrid />, category: 'Pasanaku', component: <Grupos destino={destino} onDestinoUsado={() => setDestino(null)} />, roles: ADMIN },
-    { id: 'entregas', label: 'Entregas del pozo', icon: <FiGift />, category: 'Pasanaku', component: <Entregas />, roles: ADMIN },
-    { id: 'ruleta', label: 'Ruleta', icon: <FiAperture />, category: 'Pasanaku', component: <Ruleta />, roles: ADMIN },
-    { id: 'ruleta-libre', label: 'Ruleta', icon: <FiAperture />, category: 'Pasanaku', component: <Ruleta simple />, roles: JUGADOR },
-    { id: 'jugadores', label: 'Jugadores', icon: <FiUserPlus />, category: 'Pasanaku', component: <Jugadores />, roles: ADMIN },
+    // Administración: lo que solo hace el administrador
+    { id: 'resumen', label: 'Resumen', icon: <FiPieChart />, seccion: 'Administración', component: <Resumen onIr={irARevisar} />, roles: ADMIN },
+    { id: 'grupos', label: 'Pasanakus', icon: <FiGrid />, seccion: 'Administración', component: <Grupos destino={destino} onDestinoUsado={() => setDestino(null)} />, roles: ADMIN },
+    { id: 'jugadores', label: 'Jugadores', icon: <FiUserPlus />, seccion: 'Administración', component: <Jugadores />, roles: ADMIN },
+    { id: 'entregas', label: 'Entregas del pozo', icon: <FiGift />, seccion: 'Administración', component: <Entregas />, roles: ADMIN },
+    { id: 'ruleta', label: 'Ruleta', icon: <FiAperture />, seccion: 'Administración', component: <Ruleta />, roles: ADMIN },
+    // Mi participación: lo que ve cualquier persona que juega (también el administrador cuando juega)
+    { id: 'mis', label: 'Mis pasanakus', icon: <FiLayers />, seccion: 'Mi participación', component: <MisPasanakus />, roles: [...ADMIN, ...JUGADOR] },
+    { id: 'ruleta-libre', label: 'Ruleta', icon: <FiAperture />, seccion: 'Mi participación', component: <Ruleta simple />, roles: JUGADOR },
     {
-      id: 'perfil', label: 'Mi perfil', icon: <FiUser />, category: 'Cuenta', roles: [...ADMIN, ...JUGADOR],
+      id: 'perfil', label: 'Mi perfil', icon: <FiUser />, seccion: 'Cuenta', roles: [...ADMIN, ...JUGADOR],
       component: <Perfil id={idUsuario} nombre={userName} usuario={usuarioLogin} rol={role} foto={fotoPerfil} onFoto={setFotoPerfil} />,
     },
   ];
@@ -153,6 +155,12 @@ const MenuPrincipal = () => {
   };
 
   const itemsPermitidos = menuItems.filter((item) => item.roles.includes(role));
+  // Las opciones se agrupan por sección, en el orden en que aparecen
+  const secciones = itemsPermitidos.reduce((lista, item) => {
+    const existente = lista.find((x) => x.nombre === item.seccion);
+    if (existente) existente.items.push(item); else lista.push({ nombre: item.seccion, items: [item] });
+    return lista;
+  }, []);
   const vistaActual = menuItems.find((item) => item.id === activeView);
   const fechaHoy = new Date().toLocaleDateString("es-BO", { weekday: "long", day: "numeric", month: "long" });
   const primerNombre = (userName || "").split(" ")[0];
@@ -181,17 +189,21 @@ const MenuPrincipal = () => {
         </div>
 
         <nav className="sb-nav">
-          <span className="sb-seccion">Menú</span>
-          {itemsPermitidos.map((item) => (
-            <button
-              key={item.id}
-              type="button"
-              className={`sb-item ${activeView === item.id ? 'activo' : ''}`}
-              onClick={() => { setActiveView(item.id); setMenuAbierto(false); }}
-            >
-              <span className="sb-icono">{item.icon}</span>
-              {item.label}
-            </button>
+          {secciones.map((seccion) => (
+            <div className="sb-grupo" key={seccion.nombre}>
+              <span className="sb-seccion">{seccion.nombre}</span>
+              {seccion.items.map((item) => (
+                <button
+                  key={item.id}
+                  type="button"
+                  className={`sb-item ${activeView === item.id ? 'activo' : ''}`}
+                  onClick={() => { setActiveView(item.id); setMenuAbierto(false); }}
+                >
+                  <span className="sb-icono">{item.icon}</span>
+                  {item.label}
+                </button>
+              ))}
+            </div>
           ))}
         </nav>
 

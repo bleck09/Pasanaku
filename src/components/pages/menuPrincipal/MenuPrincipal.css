@@ -109,3 +109,8 @@
   .topbar-fecha, .perfil-texto { display: none; }
   .topbar-titulo h1 { font-size: 1.15rem; }
 }
+
+/* Secciones del menú lateral */
+.sb-grupo { display: flex; flex-direction: column; gap: 4px; }
+.sb-grupo + .sb-grupo { margin-top: 14px; padding-top: 12px; border-top: 1px solid rgba(255, 255, 255, 0.2); }
+.sb-grupo .sb-seccion { padding-top: 0; }

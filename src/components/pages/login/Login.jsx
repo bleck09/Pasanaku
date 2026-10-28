@@ -6,7 +6,7 @@ import { doc, getDoc } from "firebase/firestore";
 import toast, { Toaster } from "react-hot-toast";
 
 // Iconos
-import { FiEye, FiEyeOff, FiUser, FiLock, FiArrowLeft, FiArrowRight } from "react-icons/fi";
+import { FiEye, FiEyeOff, FiUser, FiLock, FiArrowLeft, FiArrowRight, FiClock, FiWifiOff, FiAlertCircle } from "react-icons/fi";
 import Cerdito3D from "../home/Cerdito3D";
 import { normalizarUsuario } from "../menuPrincipal/acciones";
 import { hashClave } from "../menuPrincipal/claves";
@@ -17,7 +17,17 @@ import "./Login.css";
 const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [aviso, setAviso] = useState(null); // ventana de error al ingresar
   const navigate = useNavigate();
+
+  const cerrarAviso = () => {
+    const incorrecto = aviso?.icono === "clave";
+    setAviso(null);
+    if (incorrecto) {
+      const campo = document.getElementById("password");
+      if (campo) { campo.value = ""; campo.focus(); }
+    }
+  };
 
   // Solo las cuentas con correo real (administradores) pueden recuperarla por correo;
   // los jugadores piden al administrador que les cambie la contraseña.
@@ -95,24 +105,13 @@ const Login = () => {
       navigate("/menuPrincipal");
 
     } catch (error) {
-      if (error.code === "auth/invalid-credential" || error.code === "auth/user-not-found" || error.code === "auth/wrong-password") {
-        toast.error("Credenciales incorrectas. Revisa tu correo o contraseña.", {
-          style: { background: "#FFFFFF", color: "#1F2D3D", border: "1px solid #D4504F" },
-          iconTheme: { primary: "#D4504F", secondary: "#FFFFFF" }
-        });
-      } else if (error.code === "auth/too-many-requests") {
-        toast.error("Demasiados intentos fallidos. Espera unos minutos e inténtalo de nuevo.", {
-          style: { background: "#FFFFFF", color: "#1F2D3D", border: "1px solid #D4504F" }
-        });
-      } else if (error.code === "auth/network-request-failed") {
-        toast.error("Sin conexión. Verifica tu internet.", {
-          style: { background: "#FFFFFF", color: "#1F2D3D", border: "1px solid #D4504F" }
-        });
-      } else {
-        toast.error("Ocurrió un error inesperado.", {
-          style: { background: "#FFFFFF", color: "#1F2D3D", border: "1px solid #D4504F" }
-        });
-      }
+      const incorrecto = ["auth/invalid-credential", "auth/user-not-found", "auth/wrong-password"].includes(error.code);
+      setAviso(
+        incorrecto ? { icono: "clave", titulo: "Usuario o contraseña incorrectos", texto: "Revisa tus datos y vuelve a intentarlo. Si olvidaste tu contraseña, pídele al administrador que te asigne una nueva." }
+          : error.code === "auth/too-many-requests" ? { icono: "reloj", titulo: "Demasiados intentos", texto: "Por seguridad, espera unos minutos antes de intentarlo otra vez." }
+          : error.code === "auth/network-request-failed" ? { icono: "red", titulo: "Sin conexión", texto: "No pudimos conectarnos. Verifica tu internet e inténtalo de nuevo." }
+          : { icono: "alerta", titulo: "Algo salió mal", texto: "No se pudo iniciar sesión. Inténtalo otra vez en un momento." },
+      );
     } finally {
       setLoading(false);
     }
@@ -165,7 +164,20 @@ const Login = () => {
           </button>
         </form>
 
-        <p className="lg-ayuda">¿Aún no tienes cuenta? Pídele a tu administrador que te registre en su pasanaku.</p>
+        {aviso && (
+        <div className="lg-aviso-fondo" onClick={cerrarAviso} role="presentation">
+          <div className="lg-aviso" role="alertdialog" aria-modal="true" aria-labelledby="lg-aviso-titulo" onClick={(e) => e.stopPropagation()}>
+            <span className={`lg-aviso-icono ${aviso.icono}`}>
+              {aviso.icono === "reloj" ? <FiClock /> : aviso.icono === "red" ? <FiWifiOff /> : aviso.icono === "clave" ? <FiLock /> : <FiAlertCircle />}
+            </span>
+            <h2 id="lg-aviso-titulo">{aviso.titulo}</h2>
+            <p>{aviso.texto}</p>
+            <button type="button" className="lg-entrar lg-aviso-boton" onClick={cerrarAviso} autoFocus>{aviso.icono === "clave" ? "Intentar de nuevo" : "Entendido"}</button>
+          </div>
+        </div>
+      )}
+
+      <p className="lg-ayuda">¿Aún no tienes cuenta? Pídele a tu administrador que te registre en su pasanaku.</p>
       </main>
 
       <footer className="lg-pie">Pasanaku · Ahorro rotativo</footer>

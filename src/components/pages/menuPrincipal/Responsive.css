@@ -4,7 +4,7 @@
    Puntos de corte: 1100 (tablet horizontal) · 900 (menú en cajón) · 640 (celular) · 400 (celular chico)
    ============================================================ */
 
-html, body { overflow-x: hidden; }
+/* (no se pone overflow en html/body: convertiría el cuerpo en un contenedor con scroll y el menú dejaría de quedarse fijo) */
 img, svg, video { max-width: 100%; }
 .app-shell { overflow-x: clip; }
 
