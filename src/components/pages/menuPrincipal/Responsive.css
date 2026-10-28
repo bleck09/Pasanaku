@@ -172,7 +172,7 @@ img, svg, video { max-width: 100%; }
 
 /* ---------- Celular: letras y controles más pequeños ---------- */
 @media (max-width: 640px) {
-  html { font-size: 14px; }
+  html { font-size: 15.5px; }
   .pk-header h1 { font-size: 1.2rem; }
   .pk-header p { font-size: 0.85rem; }
   .topbar-titulo h1 { font-size: 0.98rem; }
@@ -444,3 +444,27 @@ img, svg, video { max-width: 100%; }
   .pk-hero-ahora .pk-hero-recibe { grid-column: 2; grid-row: 2; justify-self: end; white-space: nowrap; }
   .pk-hero-ahora .pk-hero-dias { grid-column: 2; grid-row: 3; justify-self: end; white-space: nowrap; }
 }
+
+/* ---------- Celular: letras más legibles (mínimo ~11 px) ---------- */
+@media (max-width: 640px) {
+  .pk-hero-item .pk-etiqueta, .pk-pagos-resumen span, .pk-ronda-card-datos small, .pk-gcard-datos small, .pk-pago-datos span, .pk-cuotas-datos span, .pk-pago-totales span, .pk-final-datos span, .pk-final-yo-datos span { font-size: 0.7rem !important; }
+  .pk-portada-datos small { font-size: 0.7rem !important; }
+  .pk-leyenda { font-size: 0.68rem !important; }
+  .pk-metrica div > span { font-size: 0.72rem !important; }
+  .pk-chip, .pk-multa-tag, .pk-gt-estado, .pk-etiqueta-cobro, .pk-juega-boton { font-size: 0.72rem !important; }
+  .pk-fila-info small, .pk-persona-info small, .pk-orden-info small, .pk-pend-info small, .pk-multa-info small, .pk-historial-tit small { font-size: 0.78rem !important; }
+  .pk-cobra-linea { font-size: 0.76rem !important; }
+  .pk-pago-pastilla { font-size: 0.78rem !important; }
+  .pk-tab { font-size: 0.86rem !important; }
+  .pk-btn-mini { font-size: 0.82rem !important; }
+  .pk-modal-cab p, .pkf-nota, .pk-nota-linea { font-size: 0.82rem; }
+}
+
+/* Botón para ver u ocultar la contraseña en los formularios de cambio de clave */
+.pk-campo-clave { position: relative; display: flex; align-items: center; }
+.pk-campo-clave input { width: 100%; padding-right: 46px; }
+.pk-ojo-clave { position: absolute; right: 6px; width: 36px; height: 36px; border: 0; border-radius: 10px; background: transparent; color: var(--text-dim); font-size: 1.15rem; display: grid; place-items: center; cursor: pointer; }
+.pk-ojo-clave:hover { color: var(--primary-text); background: rgba(74, 143, 214, 0.1); }
+.pk-visor-pdf-aviso strong { color: var(--text-main); font-size: 1.05rem; }
+.pk-visor-pdf-aviso p { margin: 0 0 6px; max-width: 320px; }
+.pk-visor-pdf-aviso .pk-btn { margin-top: 4px; }

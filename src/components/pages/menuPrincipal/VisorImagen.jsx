@@ -37,13 +37,18 @@ const VisorImagen = ({ pago, onCerrar }) => {
           pdfEnPagina ? (
             <iframe className="pk-visor-pdf" title="Comprobante en PDF" src={url} />
           ) : (
-            <div className="pk-visor-vacio"><FiFileText /><p>Este comprobante es un PDF. Tu navegador no puede mostrarlo aquí; ábrelo en una pestaña nueva.</p></div>
+            <div className="pk-visor-vacio pk-visor-pdf-aviso">
+              <FiFileText />
+              <strong>Este comprobante es un PDF</strong>
+              <p>Tu navegador no puede mostrarlo aquí. Toca el botón para abrirlo en una pestaña nueva y vuelve a esta página cuando termines.</p>
+              <a className="pk-btn" href={url} target="_blank" rel="noreferrer"><FiExternalLink /> Abrir el PDF</a>
+            </div>
           )
         ) : (
           <img src={url} alt="Comprobante de pago" />
         )}
 
-        {url && <a className="pk-link pk-visor-abrir" href={url} target="_blank" rel="noreferrer"><FiExternalLink /> Abrir en una pestaña nueva</a>}
+        {url && !(pdf && !pdfEnPagina) && <a className="pk-link pk-visor-abrir" href={url} target="_blank" rel="noreferrer"><FiExternalLink /> Abrir en una pestaña nueva</a>}
       </div>
     </div>
   );

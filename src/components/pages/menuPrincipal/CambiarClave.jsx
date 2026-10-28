@@ -8,6 +8,7 @@ import { FiLock } from "react-icons/fi";
 import { validarClave } from "./acciones";
 import { hashClave, ITERACIONES } from "./claves";
 import { CLAVE_PRUEBA } from "./accesoJugador";
+import CampoClave from "./CampoClave";
 import { CLAVE_SESION } from "./sesion";
 import "./Pasanaku.css";
 
@@ -68,8 +69,8 @@ const CambiarClave = ({ onListo, onSalir }) => {
         <p style={{ color: "var(--text-dim)", fontSize: "0.9rem" }}>
           Entraste con una contraseña temporal. Elige la contraseña que quieras (mínimo 8 caracteres) para continuar.
         </p>
-        <label>Nueva contraseña<input type="password" value={clave} onChange={(e) => setClave(e.target.value)} minLength={8} required autoFocus autoComplete="new-password" /></label>
-        <label>Repite la contraseña<input type="password" value={repetir} onChange={(e) => setRepetir(e.target.value)} minLength={8} required autoComplete="new-password" /></label>
+        <CampoClave etiqueta="Nueva contraseña" value={clave} onChange={(e) => setClave(e.target.value)} autoComplete="new-password" autoFocus />
+        <CampoClave etiqueta="Repite la contraseña" value={repetir} onChange={(e) => setRepetir(e.target.value)} autoComplete="new-password" />
         <div className="pk-actions">
           <button type="button" className="pk-btn pk-btn-ghost" onClick={onSalir}>Salir</button>
           <button type="submit" className="pk-btn" disabled={guardando}>{guardando ? "Guardando..." : "Guardar"}</button>

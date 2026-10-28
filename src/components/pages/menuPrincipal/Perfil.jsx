@@ -12,6 +12,7 @@ import { hashClave, ITERACIONES } from "./claves";
 import { probarClave } from "./accesoJugador";
 import { comprimirImagen, extensionDe } from "./imagenes";
 import QRPerfil from "./QRPerfil";
+import CampoClave from "./CampoClave";
 import "./Pasanaku.css";
 
 // Perfil de la persona que inició sesión, en secciones: foto, contraseña y QR para cobrar (administrador y jugadores)
@@ -132,9 +133,9 @@ const Perfil = ({ id, nombre, usuario, rol, foto, onFoto }) => {
       {seccion === "clave" && (
         <form className="pk-card pk-form pk-perfil-seccion" onSubmit={cambiarClave}>
           <h3><FiLock /> Cambiar contraseña</h3>
-          <label>Contraseña actual<input type="password" value={actual} onChange={(e) => setActual(e.target.value)} required autoComplete="current-password" /></label>
-          <label>Contraseña nueva<input type="password" value={nueva} onChange={(e) => setNueva(e.target.value)} minLength={8} required autoComplete="new-password" /></label>
-          <label>Repite la contraseña nueva<input type="password" value={repetir} onChange={(e) => setRepetir(e.target.value)} minLength={8} required autoComplete="new-password" /></label>
+          <CampoClave etiqueta="Contraseña actual" value={actual} onChange={(e) => setActual(e.target.value)} autoComplete="current-password" />
+          <CampoClave etiqueta="Contraseña nueva" value={nueva} onChange={(e) => setNueva(e.target.value)} autoComplete="new-password" />
+          <CampoClave etiqueta="Repite la contraseña nueva" value={repetir} onChange={(e) => setRepetir(e.target.value)} autoComplete="new-password" />
           <small className="pkf-nota">Nadie puede ver tu contraseña: se guarda cifrada. Si la olvidas, el administrador te asigna una temporal.</small>
           <div className="pk-actions">
             <button type="submit" className="pk-btn" disabled={guardando}>{guardando ? "Guardando..." : "Guardar contraseña"}</button>
