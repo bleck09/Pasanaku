@@ -1,0 +1,86 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() { return request.auth != null; }
+    function rol() { return get(/databases/$(database)/documents/usuario/$(request.auth.uid)).data.rol; }
+    function isAdmin() { return signedIn() && rol().lower() == 'administrador'; }
+
+    // Cuentas con Firebase Authentication (administrador). Solo ellas pueden crear o cambiar datos importantes.
+    match /usuario/{uid} {
+      allow read: if isAdmin() || (signedIn() && request.auth.uid == uid);
+      allow create, delete: if isAdmin();
+      allow update: if isAdmin()
+        || (request.auth.uid == uid
+            && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['fotoUrl', 'debeCambiarClave'])
+            && request.resource.data.get('debeCambiarClave', false) == false);
+    }
+
+    // Jugadores: el id del documento es el usuario. Sin sesión de Firebase, así que:
+    //  - para entrar se lee SU documento por id (get); listar a todos es solo del administrador
+    //  - la contraseña se guarda como hash (nunca en texto)
+    //  - un jugador solo puede poner su contraseña propia mientras tenga la temporal; después solo el administrador
+    match /jugadores/{id} {
+      allow get: if true;
+      allow list: if isAdmin();
+      allow create, delete: if isAdmin();
+      allow update: if isAdmin()
+        || (resource.data.debeCambiarClave == true
+            && request.resource.data.debeCambiarClave == false
+            && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['sal', 'hash', 'iter', 'debeCambiarClave']))
+        // cambio voluntario desde "Mi perfil": la app verifica la contraseña actual y envía el hash anterior
+        || (request.resource.data.diff(resource.data).affectedKeys().hasOnly(['sal', 'hash', 'iter', 'previo'])
+            && request.resource.data.previo == resource.data.hash);
+    }
+
+    // Foto de perfil visible para todos (id = usuario del jugador o uid del administrador)
+    match /perfiles/{id} {
+      allow read: if true;
+      allow write: if isAdmin()
+        || (request.resource.data.keys().hasOnly(['fotoUrl', 'actualizado'])
+            && request.resource.data.fotoUrl is string
+            && request.resource.data.fotoUrl.size() < 600);
+    }
+
+    // Contraseña TEMPORAL que entrega el administrador. Solo él la lee; se borra cuando la persona elige la suya.
+    // (La contraseña personal que elige cada jugador solo existe como hash: nadie puede verla.)
+    match /temporales/{id} {
+      allow read, create, update: if isAdmin();
+      allow delete: if isAdmin()
+        || (exists(/databases/$(database)/documents/jugadores/$(id))
+            && get(/databases/$(database)/documents/jugadores/$(id)).data.debeCambiarClave == false);
+    }
+
+    // Lo que ven los jugadores (quién paga, a quién le toca): lectura abierta, escritura solo del administrador
+    match /pasanakus/{id}     { allow read: if true; allow write: if isAdmin(); }
+    match /participantes/{id} { allow read: if true; allow write: if isAdmin(); }
+    match /entregas/{id}      { allow read: if true; allow write: if isAdmin(); }
+    // Qué administrador hizo cada entrega: solo lo ven los administradores
+    match /entregas_admin/{id} { allow read, write: if isAdmin(); }
+    // QR y datos de la cuenta donde se paga cada pasanaku: los ven todos, los cambia el administrador
+    // Multas por retraso: el administrador las confirma o las perdona; las ven todos
+    match /multas/{id}        { allow read: if true; allow write: if isAdmin(); }
+    match /cuentas_pago/{id}  { allow read: if true; allow write: if isAdmin(); }
+    // QR con el que cada persona cobra el pozo (id = usuario del jugador o uid del administrador).
+    // Los jugadores no tienen sesión de Firebase, así que la escritura solo se limita en forma y tamaño;
+    // por eso la app avisa al administrador cuando un QR se cambió hace poco.
+    match /cuentas_cobro/{id} {
+      allow read: if true;
+      allow write: if isAdmin()
+        || (request.resource.data.keys().hasOnly(['qr', 'nota', 'actualizado'])
+            && request.resource.data.qr is string && request.resource.data.qr.size() < 700000
+            && request.resource.data.nota is string && request.resource.data.nota.size() < 200);
+    }
+
+    match /pagos/{id} {
+      allow read: if true;
+      allow update, delete: if isAdmin();
+      // cualquiera puede ENVIAR un comprobante, pero siempre queda "en revisión" hasta que el administrador lo confirme
+      allow create: if isAdmin()
+        || (request.resource.data.estado == 'revision'
+            && request.resource.data.monto is number
+            && request.resource.data.monto > 0
+            && request.resource.data.monto <= 1000000
+            && get(/databases/$(database)/documents/participantes/$(request.resource.data.participanteId)).data.uid == request.resource.data.uid);
+    }
+  }
+}

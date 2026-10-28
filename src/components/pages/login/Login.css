@@ -1,0 +1,77 @@
+/* ============================================================
+   INGRESO: tarjeta limpia y centrada, con adornos suaves
+   ============================================================ */
+
+.lg { position: relative; min-height: 100dvh; display: flex; flex-direction: column; align-items: center; background: linear-gradient(180deg, #EAF2FC 0%, #F2F6FC 45%, #FFFFFF 100%); color: var(--text-main); font-family: 'Montserrat', sans-serif; overflow: hidden; }
+
+/* Adornos: círculos suaves, como relieve */
+.lg-deco { position: absolute; border-radius: 50%; pointer-events: none; }
+.lg-deco.d1 { width: 340px; height: 340px; top: -140px; left: -110px; background: radial-gradient(circle at 35% 30%, #FFFFFF, #D6E6FA 60%, #BFD8F5); opacity: 0.9; box-shadow: 0 30px 60px rgba(74, 143, 214, 0.18); }
+.lg-deco.d2 { width: 220px; height: 220px; top: 22%; right: -90px; background: radial-gradient(circle at 35% 30%, #FFFFFF, #DCEAFB 65%); box-shadow: 0 24px 50px rgba(74, 143, 214, 0.15); }
+.lg-deco.d3 { width: 300px; height: 300px; bottom: -120px; right: -80px; background: radial-gradient(circle at 35% 30%, #FFFFFF, #D6E6FA 60%, #BFD8F5); opacity: 0.85; box-shadow: 0 -10px 50px rgba(74, 143, 214, 0.15); }
+
+/* Botón para volver a la página de inicio */
+.lg-volver { position: absolute; top: 16px; left: 16px; z-index: 5; display: inline-flex; align-items: center; gap: 6px; padding: 9px 16px 9px 12px; border-radius: 999px; background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(6px); border: 1px solid var(--border-glass); color: var(--primary-text); font-weight: 700; font-size: 0.85rem; text-decoration: none; box-shadow: var(--shadow); transition: transform 0.15s; }
+.lg-volver:hover { transform: translateX(-2px); }
+.lg-volver svg { font-size: 1.1rem; }
+
+.lg-centro { position: relative; z-index: 2; width: 100%; max-width: 400px; flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 70px 22px 18px; text-align: center; }
+
+/* Ilustración de la alcancía arriba */
+.lg-logo { width: min(260px, 70vw); aspect-ratio: 440 / 380; margin: -6px 0 4px; position: relative; }
+.lg-logo .lp-cerdito-svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; animation: lg-flota 4.5s ease-in-out infinite; filter: drop-shadow(0 16px 18px rgba(24, 60, 110, 0.22)); }
+@keyframes lg-flota { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-7px); } }
+@media (prefers-reduced-motion: reduce) { .lg-logo .lp-cerdito-svg { animation: none; } }
+.lg-centro h1 { margin: 0; font-size: 1.7rem; font-weight: 800; }
+.lg-sub { margin: 4px 0 22px; color: var(--text-dim); font-size: 0.9rem; letter-spacing: 0.5px; }
+
+/* Formulario */
+.lg-form { width: 100%; display: grid; gap: 14px; text-align: left; }
+.lg-campo { display: grid; gap: 6px; }
+.lg-campo > label { font-size: 0.82rem; font-weight: 600; color: var(--text-dim); padding-left: 4px; }
+.lg-input { display: flex; align-items: center; gap: 10px; padding: 0 14px; height: 52px; border-radius: 16px; background: linear-gradient(180deg, #F0F5FC, #FFFFFF); border: 1px solid var(--border-glass); box-shadow: inset 0 2px 5px rgba(74, 143, 214, 0.1), 0 6px 14px rgba(74, 143, 214, 0.08); transition: border-color 0.2s, box-shadow 0.2s; }
+.lg-input:focus-within { border-color: var(--primary); box-shadow: 0 0 0 4px rgba(74, 143, 214, 0.18), 0 6px 14px rgba(74, 143, 214, 0.1); }
+.lg-icono { flex: none; color: var(--primary-text); font-size: 1.15rem; }
+.lg-input input { flex: 1; min-width: 0; height: 100%; border: 0; outline: 0; background: transparent; font-family: inherit; font-size: 1rem; color: var(--text-main); }
+.lg-input input::placeholder { color: #9AAAC0; }
+.lg-ojo { flex: none; border: 0; background: transparent; color: var(--text-dim); font-size: 1.15rem; cursor: pointer; display: grid; place-items: center; padding: 4px; }
+.lg-olvide { justify-self: end; border: 0; background: transparent; padding: 0; color: var(--primary-text); font-family: inherit; font-size: 0.84rem; font-weight: 600; cursor: pointer; }
+.lg-olvide:hover { text-decoration: underline; }
+
+.lg-entrar { display: flex; align-items: center; justify-content: center; gap: 12px; height: 54px; margin-top: 4px; border: 0; border-radius: 18px; background: linear-gradient(135deg, #4A8FD6, #2F6DB5); color: #fff; font-family: inherit; font-size: 1.05rem; font-weight: 700; cursor: pointer; box-shadow: 0 14px 28px rgba(47, 109, 181, 0.38); transition: transform 0.15s, box-shadow 0.15s; }
+.lg-entrar:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 18px 34px rgba(47, 109, 181, 0.45); }
+.lg-entrar:disabled { opacity: 0.75; cursor: wait; }
+.lg-flecha { width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center; background: rgba(255, 255, 255, 0.25); font-size: 1.1rem; }
+
+.lg-ayuda { margin: 20px 0 0; color: var(--text-dim); font-size: 0.82rem; line-height: 1.5; max-width: 320px; }
+.lg-pie { position: relative; z-index: 2; padding: 12px 16px 18px; color: var(--text-dim); font-size: 0.74rem; letter-spacing: 1px; text-transform: uppercase; }
+
+/* Animación de carga */
+.loading-state { display: flex; align-items: center; gap: 10px; }
+.spinner { width: 16px; height: 16px; border: 2px solid rgba(255, 255, 255, 0.45); border-top-color: #fff; border-radius: 50%; animation: spin 1s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* Pantallas bajas: se compacta para que el formulario siempre se vea */
+@media (max-height: 700px) {
+  .lg-centro { padding-top: 62px; }
+  .lg-logo { width: min(170px, 46vw); margin-bottom: 0; }
+  .lg-centro h1 { font-size: 1.45rem; }
+  .lg-sub { margin-bottom: 14px; }
+  .lg-form { gap: 10px; }
+  .lg-input { height: 48px; }
+  .lg-entrar { height: 50px; }
+  .lg-ayuda { margin-top: 12px; }
+}
+@media (min-width: 900px) {
+  .lg-centro { max-width: 430px; }
+  .lg-centro { padding: 80px 22px 24px; }
+}
+
+/* Un solo ojo: se oculta el que agregan algunos navegadores (Edge/Chrome) en los campos de contraseña */
+.lg-input input::-ms-reveal, .lg-input input::-ms-clear { display: none; }
+.lg-input input::-webkit-credentials-auto-fill-button { visibility: hidden; display: none !important; pointer-events: none; position: absolute; right: 0; }
+.lg-input input::-webkit-contacts-auto-fill-button { visibility: hidden; display: none !important; }
+/* Autocompletado del navegador sin el fondo amarillo/azul */
+.lg-input input:-webkit-autofill, .lg-input input:-webkit-autofill:focus { -webkit-box-shadow: 0 0 0 1000px #F3F7FD inset; -webkit-text-fill-color: var(--text-main); caret-color: var(--text-main); transition: background-color 9999s ease-in-out 0s; }
+.lg-input input:disabled { opacity: 0.6; }
+.lg-ojo:focus-visible, .lg-olvide:focus-visible, .lg-volver:focus-visible, .lg-entrar:focus-visible { outline: 3px solid rgba(74, 143, 214, 0.5); outline-offset: 2px; }

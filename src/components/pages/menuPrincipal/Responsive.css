@@ -1,0 +1,446 @@
+/* ============================================================
+   ADAPTACIÓN A TABLET Y CELULAR
+   Se carga al final para ajustar los estilos del sistema sin tocarlos uno por uno.
+   Puntos de corte: 1100 (tablet horizontal) · 900 (menú en cajón) · 640 (celular) · 400 (celular chico)
+   ============================================================ */
+
+html, body { overflow-x: hidden; }
+img, svg, video { max-width: 100%; }
+.app-shell { overflow-x: clip; }
+
+/* ---------- Tablet horizontal: menú lateral más angosto ---------- */
+@media (min-width: 901px) and (max-width: 1100px) {
+  .sidebar { width: 210px; padding: 18px 12px 14px; }
+  .sb-item { padding: 11px 12px; font-size: 0.88rem; }
+  .app-shell { gap: 14px; padding: 14px; }
+  .topbar { top: 14px; }
+  .pk-portada-info h1 { font-size: 1.6rem; }
+}
+
+/* ---------- Tablet y celular: menú en cajón, tamaños táctiles ---------- */
+@media (max-width: 900px) {
+  .sidebar { height: calc(100dvh - 20px); width: min(290px, 86vw); }
+  .app-shell { padding-bottom: calc(10px + env(safe-area-inset-bottom)); }
+  .app-contenido { padding-bottom: 12px; }
+  .topbar-titulo { min-width: 0; }
+  .topbar-titulo h1, .topbar-titulo p { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+  /* zonas táctiles de al menos ~44 px */
+  .pk-btn, .pk-segmento button, .pk-modo, .pk-tab { min-height: 44px; }
+  .pk-btn-mini { min-height: 38px; }
+  .pk-icon, .menu-toggle, .sb-cerrar { min-width: 42px; min-height: 42px; }
+  .sb-item { padding: 14px; }
+  .perfil-opcion { padding: 14px 12px; }
+
+  .pk-view { max-width: 100%; }
+  .pk-header h1 { font-size: 1.35rem; }
+  .pk-hero { grid-template-columns: repeat(auto-fit, minmax(min(100%, 230px), 1fr)); }
+  .pk-dos-col { grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr)); }
+  .pk-galeria { grid-template-columns: repeat(auto-fill, minmax(min(100%, 280px), 1fr)); }
+  .pk-stats { grid-template-columns: repeat(auto-fit, minmax(min(100%, 200px), 1fr)); }
+}
+
+/* ---------- Celular ---------- */
+@media (max-width: 640px) {
+  .app-shell { padding: 8px; padding-bottom: calc(8px + env(safe-area-inset-bottom)); }
+  .app-main { gap: 12px; }
+  .topbar { top: 8px; padding: 10px 12px; gap: 10px; border-radius: 18px; }
+  .topbar-titulo h1 { font-size: 1.05rem; }
+  .topbar-titulo p { font-size: 0.78rem; }
+  .perfil-boton { padding: 2px; }
+  .perfil-menu { min-width: 190px; right: -4px; }
+
+  /* evita que iOS haga zoom al tocar un campo */
+  input, select, textarea, .pk-combo-boton { font-size: 16px !important; }
+
+  .pk-header { margin-bottom: 1rem; }
+  .pk-header .pk-btn { width: 100%; justify-content: center; }
+  .pk-card { padding: 1rem; border-radius: 18px; }
+  .pk-actions { flex-wrap: wrap; }
+  .pk-actions .pk-btn { flex: 1; justify-content: center; }
+  .pk-toolbar { gap: 8px; }
+
+  /* portada del pasanaku */
+  .pk-portada { border-radius: 20px; }
+  .pk-portada-banner { padding: 1rem 1rem 1.1rem; }
+  .pk-portada-circ.c1 { width: 180px; height: 180px; }
+  .pk-portada-fila { gap: 0.9rem; }
+  .pk-portada-info h1 { font-size: 1.35rem; overflow-wrap: anywhere; }
+  .pk-portada-datos { width: 100%; gap: 8px; }
+  .pk-portada-datos > div { padding: 8px 10px; border-radius: 14px; }
+  .pk-portada-datos strong { font-size: 0.98rem; }
+  .pk-portada-tabs { padding: 0 6px; scroll-snap-type: x proximity; scrollbar-width: none; }
+  .pk-portada-tabs::-webkit-scrollbar { display: none; }
+  .pk-tab { padding: 12px 12px 10px; font-size: 0.86rem; scroll-snap-align: start; }
+
+  /* tarjetas del resumen */
+  .pk-hero { gap: 10px; }
+  .pk-hero-item { padding: 0.9rem 1rem; padding-right: 3.6rem; }
+  .pk-hero-item strong { font-size: 1.15rem; }
+  .pk-hero-icono { width: 34px; height: 34px; top: 12px; right: 12px; }
+  .pk-seccion-cab { flex-direction: column; align-items: stretch; }
+  .pk-seccion-cab .pk-btn, .pk-seccion-cab .pk-chip { width: 100%; justify-content: center; }
+
+  /* tarjetas de personas en 2 columnas */
+  .pk-companeros, .pk-pagos-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+  .pk-companeros .pk-mini-persona, .pk-pago-card { padding: 0.9rem 0.6rem; }
+  .pk-pago-nombre, .pk-mini-persona strong { overflow-wrap: anywhere; font-size: 0.95rem; }
+  .pk-pago-card .pk-btn { padding: 8px 6px; font-size: 0.8rem; }
+
+  /* selector de ronda a todo el ancho */
+  .pk-toolbar .pk-selronda { width: 100%; }
+  .pk-selronda-actual { flex: 1; min-width: 0; }
+  .pk-selronda-panel { left: 0; right: 0; width: auto; max-width: none; }
+  .pk-selronda-grid { grid-template-columns: repeat(5, 1fr); }
+
+  /* tablas con desplazamiento lateral y primera columna fija */
+  .pk-tabla-wrap { padding: 0.25rem 0.5rem; -webkit-overflow-scrolling: touch; }
+  .pk-tabla { font-size: 0.85rem; }
+  .pk-matriz2 th:first-child, .pk-matriz2 td:first-child { position: sticky; left: 0; z-index: 1; background: var(--bg-card); box-shadow: 6px 0 8px -6px rgba(24, 44, 76, 0.18); }
+  .pk-matriz2-persona small { display: none; }
+
+  /* ventanas emergentes tipo hoja desde abajo */
+  .pk-modal-fondo { padding: 0; align-items: flex-end; }
+  .pk-modal { max-width: 100% !important; max-height: 94dvh; overflow-y: auto; border-radius: 22px 22px 0 0; padding: 1rem 1rem calc(1rem + env(safe-area-inset-bottom)); }
+  .pk-modal-cab h2 { font-size: 1.2rem; }
+  .pk-pago-resumen { flex-direction: column; align-items: stretch; text-align: center; }
+  .pk-pago-resumen .pk-avatar { align-self: center; }
+  .pk-pago-datos { gap: 4px; }
+  .pk-pago-datos strong { font-size: 0.9rem; }
+  .pk-pagar-form .pk-monto-input input[type="number"] { font-size: 1.9rem !important; }
+  .pk-confirmar-monto strong { font-size: 2rem; }
+  .pk-preview-caja { flex-direction: column; align-items: stretch; }
+  .pk-preview { max-width: 100%; }
+  .pk-visor-fondo { padding: 0.5rem; }
+  .pk-visor { max-width: 100%; }
+
+  /* anuncios a pantalla completa */
+  .pk-ganador { padding: 1.5rem 1rem 1.25rem; border-radius: 22px; }
+  .pk-ganador h2 { font-size: 1.6rem; }
+  .pk-ganador-avatar .pk-avatar { width: 92px !important; height: 92px !important; }
+
+  /* formularios */
+  .pkf-fila { grid-template-columns: 1fr; }
+  .pkf-fecha { max-width: 100%; }
+  .pk-hoja .pkf, .pk-hoja-form { padding: 1rem; }
+  .pk-hoja-form { max-width: 100%; }
+  .pkf-dia { min-width: 52px; padding: 10px 6px; }
+  .pkf-opciones { grid-template-columns: 1fr; }
+
+  /* galerías y filtros */
+  .pk-barra-filtros { padding: 10px; gap: 8px; border-radius: 18px; }
+  .pk-buscar { min-width: 0; flex-basis: 100%; }
+  .pk-segmento { max-width: 100%; }
+  .pk-gcard-portada { min-height: 130px; }
+  .pk-gcard-datos { gap: 4px; padding: 8px; }
+  .pk-gcard-pie { flex-wrap: wrap; }
+  .pk-gcard-botones { width: 100%; }
+
+  /* ruleta */
+  .pk-ruleta-panel { padding: 1rem; gap: 14px; }
+  .pk-ruleta-escena { padding: 1rem 0.5rem; }
+  .pk-ruleta-boton { width: 100%; justify-content: center; padding: 14px 20px; font-size: 1rem; }
+  .pk-ruleta-agregar { flex-wrap: wrap; }
+  .pk-ruleta-agregar .pk-btn { flex: 1; justify-content: center; }
+  .pk-ruleta-ganador { padding: 12px 16px; }
+  .pk-ruleta-ganador strong { font-size: 1.25rem; }
+  .pk-avanzada-form { grid-template-columns: 1fr; }
+  .pk-podio-fila { gap: 10px; padding: 8px 12px 8px 10px; border-radius: 16px; }
+  .pk-podio-num { min-width: 34px; font-size: 1.5rem; }
+  .pk-orden-item { gap: 10px; padding: 10px 12px; }
+  .pk-orden-pago { width: 100%; }
+
+  /* datos del pasanaku */
+  .pk-datos li { flex-direction: column; gap: 2px; }
+}
+
+/* ---------- Celular chico ---------- */
+@media (max-width: 400px) {
+  .topbar-titulo p { display: none; }
+  .pk-portada-datos > div { padding: 6px 8px; }
+  .pk-portada-datos small { font-size: 0.62rem; letter-spacing: 0.5px; }
+  .pk-companeros, .pk-pagos-grid { grid-template-columns: 1fr 1fr; gap: 8px; }
+  .pk-selronda-grid { grid-template-columns: repeat(4, 1fr); }
+  .pk-tab span, .pk-tab { font-size: 0.82rem; }
+}
+
+/* ---------- Celular girado (poco alto) ---------- */
+@media (max-height: 480px) and (orientation: landscape) {
+  .pk-modal { max-height: 100dvh; }
+  .sidebar { overflow-y: auto; }
+}
+
+/* ---------- Celular: letras y controles más pequeños ---------- */
+@media (max-width: 640px) {
+  html { font-size: 14px; }
+  .pk-header h1 { font-size: 1.2rem; }
+  .pk-header p { font-size: 0.85rem; }
+  .topbar-titulo h1 { font-size: 0.98rem; }
+  .menu-toggle { min-width: 38px; min-height: 38px; width: 38px; height: 38px; font-size: 1.15rem; }
+  .perfil-boton img, .perfil-boton .pk-avatar { width: 34px !important; height: 34px !important; }
+
+  /* buscador y filtros */
+  input, select, textarea, .pk-combo-boton { font-size: 15px !important; }
+  .pk-buscar input { padding: 9px 0; }
+  .pk-segmento { padding: 3px; scrollbar-width: none; }
+  .pk-segmento::-webkit-scrollbar { display: none; }
+  .pk-segmento button { min-height: 34px; padding: 5px 12px; font-size: 0.8rem; }
+  .pk-btn { padding: 8px 12px; font-size: 0.85rem; min-height: 40px; }
+  .pk-btn-mini { min-height: 34px; }
+  .pk-chip { font-size: 0.75rem; padding: 3px 9px; }
+
+  /* tarjetas de la galería */
+  .pk-gcard { border-radius: 18px; }
+  .pk-gcard-portada { min-height: 120px; padding: 12px; }
+  .pk-gcard-portada h3 { font-size: 1.15rem; }
+  .pk-gchip { font-size: 0.7rem; padding: 4px 10px; }
+  .pk-gcard-cuerpo { padding: 12px; gap: 8px; }
+  .pk-gcard-datos small { font-size: 0.6rem; letter-spacing: 0.5px; }
+  .pk-gcard-datos strong { font-size: 0.82rem; }
+  .pk-gcard-linea { font-size: 0.8rem; }
+
+  /* resumen y portada del pasanaku */
+  .pk-portada-info h1 { font-size: 1.2rem; }
+  .pk-portada-info p { font-size: 0.82rem; }
+  .pk-portada-datos small { font-size: 0.6rem; }
+  .pk-portada-datos strong { font-size: 0.88rem; }
+  .pk-tab { font-size: 0.8rem; padding: 10px 10px 8px; min-height: 40px; }
+  .pk-hero-item strong { font-size: 1.05rem; }
+  .pk-etiqueta { font-size: 0.7rem; }
+  .pk-seccion-tit { font-size: 0.98rem; }
+  .pk-monto strong { font-size: 1.6rem; }
+  .pk-ganador h2 { font-size: 1.4rem; }
+}
+
+/* ---------- Celular: filtros y portadas de tarjeta compactos ---------- */
+@media (max-width: 640px) {
+  .pk-barra-filtros { padding: 8px; gap: 6px; margin-bottom: 0.9rem; border-radius: 16px; }
+  .pk-buscar { padding: 0 12px; gap: 8px; }
+  .pk-buscar input { padding: 6px 0; }
+  .pk-segmento { padding: 2px; }
+  .pk-segmento button { min-height: 28px; padding: 3px 11px; font-size: 0.76rem; }
+  .pk-barra-filtros .pk-segmento { flex: 0 1 auto; }
+
+  .pk-gcard-portada { min-height: 0; gap: 22px; padding: 10px 12px; }
+  .pk-gcard-circ { width: 120px; height: 120px; right: -40px; bottom: -60px; }
+  .pk-gcard-portada h3 { font-size: 1.05rem; }
+  .pk-gchip { padding: 3px 9px; font-size: 0.68rem; }
+  .pk-galeria { gap: 0.9rem; }
+}
+
+/* ---------- Lista tipo app (solo celular), inspirada en las apps de banca ---------- */
+.pk-lista-movil, .pk-resumen-movil { display: none; }
+
+@media (max-width: 640px) {
+  .pk-vista-escritorio, .pk-solo-escritorio, .pk-header p { display: none !important; }
+
+  .pk-resumen-movil { display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 2px 12px; padding: 16px 18px; margin-bottom: 0.8rem; border-radius: 22px; color: #fff; box-shadow: 0 12px 26px rgba(58, 124, 194, 0.3); position: relative; overflow: hidden; }
+  .pk-resumen-movil::after { content: ""; position: absolute; width: 130px; height: 130px; right: -40px; top: -50px; border-radius: 50%; background: rgba(255, 255, 255, 0.14); }
+  .pk-resumen-movil span { font-size: 0.78rem; opacity: 0.9; grid-column: 1; }
+  .pk-resumen-movil > strong { grid-column: 1; grid-row: 2; font-size: 2.2rem; line-height: 1; color: #fff; }
+  .pk-resumen-movil div { grid-column: 2; grid-row: 1 / span 2; display: grid; gap: 2px; font-size: 0.78rem; position: relative; z-index: 1; }
+  .pk-resumen-movil p { margin: 0; padding: 3px 10px; border-radius: 999px; background: rgba(255, 255, 255, 0.2); white-space: nowrap; }
+
+  .pk-lista-movil { display: grid; gap: 0; padding: 4px 0; border-radius: 22px; background: var(--bg-card); border: 1px solid var(--border-glass); box-shadow: var(--shadow); overflow: hidden; }
+  .pk-fila-movil { display: flex; align-items: center; gap: 12px; width: 100%; padding: 12px 14px; border: 0; border-top: 1px solid var(--border-glass); background: transparent; color: var(--text-main); font-family: inherit; text-align: left; cursor: pointer; }
+  .pk-fila-movil:first-child { border-top: 0; }
+  .pk-fila-movil:active { background: var(--surface); }
+  .pk-fila-icono { flex: none; width: 46px; height: 46px; border-radius: 15px; display: grid; place-items: center; color: #fff; font-size: 1.15rem; font-weight: 700; box-shadow: 0 6px 14px rgba(58, 124, 194, 0.25); }
+  .pk-fila-info { flex: 1; min-width: 0; display: grid; gap: 1px; }
+  .pk-fila-info strong { font-size: 0.98rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .pk-fila-info small { color: var(--text-dim); font-size: 0.74rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .pk-fila-info small b { color: var(--text-main); font-weight: 600; }
+  .pk-fila-movil .pk-chip { flex: none; }
+}
+
+/* ---------- Celular: las tablas se convierten en tarjetas (sin scroll lateral) ---------- */
+@media (max-width: 640px) {
+  .pk-tabla-wrap:has(.pk-tabla) { padding: 0; overflow: visible; background: transparent; border: 0; box-shadow: none; }
+  .pk-tabla, .pk-tabla tbody, .pk-tabla tr, .pk-tabla td { display: block; width: 100%; }
+  .pk-tabla thead { display: none; }
+  .pk-tabla tbody { display: grid; gap: 10px; }
+  .pk-tabla tr { padding: 6px 14px; border-radius: 18px; background: var(--bg-card); border: 1px solid var(--border-glass); box-shadow: var(--shadow); }
+  .pk-tabla tr.pk-fila-actual { border-color: var(--primary); background: rgba(74, 143, 214, 0.06); }
+  .pk-tabla td { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 9px 0; border-top: 1px solid var(--border-glass); text-align: right; min-width: 0; }
+  .pk-tabla td:first-child { border-top: 0; }
+  .pk-tabla td[data-label]::before { content: attr(data-label); flex: none; color: var(--text-dim); font-size: 0.72rem; font-weight: 600; letter-spacing: 0.6px; text-transform: uppercase; text-align: left; }
+  .pk-tabla td > * { min-width: 0; overflow-wrap: anywhere; }
+  .pk-tabla td input.pk-celda { width: 100%; max-width: 60%; text-align: right; }
+
+  /* tabla de personas: la persona es el título de la tarjeta y las acciones van al pie */
+  .pk-tabla-personas td:first-child { justify-content: flex-start; padding: 10px 0; }
+  .pk-tabla-personas td:first-child::before { display: none; }
+  .pk-tabla td.pk-acciones-fila, .pk-tabla-personas td:last-child:not([data-label]) { justify-content: flex-end; flex-wrap: wrap; gap: 8px; }
+  .pk-tabla td:last-child:not([data-label])::before { display: none; }
+}
+
+/* ---------- Celular: la ventana de pago como hoja compacta con acciones fijas abajo ---------- */
+@media (max-width: 640px) {
+  .pk-modal { max-height: 90dvh; padding-top: 0.8rem; }
+  .pk-modal-cab { margin-bottom: 0.6rem; }
+  .pk-modal-cab h2 { font-size: 1.05rem; }
+  .pk-modal-cab p { font-size: 0.78rem; }
+  .pk-modal-cab .pk-icon { min-width: 34px; min-height: 34px; }
+
+  .pk-pagar-form { gap: 0.75rem; margin-top: 0.4rem; }
+  .pk-pago-resumen { flex-direction: row; align-items: center; padding: 8px 10px; border-radius: 14px; }
+  .pk-pago-resumen .pk-avatar { display: none; }
+  .pk-pago-datos { gap: 2px; }
+  .pk-pago-datos span { font-size: 0.58rem; letter-spacing: 0.3px; }
+  .pk-pago-datos strong { font-size: 0.82rem; }
+  .pk-pago-bloque { gap: 6px; }
+  .pk-pago-paso { font-size: 0.85rem; }
+  .pk-pago-paso b { width: 19px; height: 19px; font-size: 0.68rem; }
+  .pk-monto-input { padding: 8px 12px; border-radius: 14px; }
+  .pk-monto-input span { font-size: 1.05rem; }
+  .pk-pagar-form .pk-monto-input input[type="number"] { font-size: 1.5rem !important; max-width: 160px; }
+  .pk-pago-bloque .pk-modo { min-height: 32px; padding: 4px 12px; font-size: 0.78rem; }
+  .pk-subir { padding: 0.7rem 0.6rem; gap: 2px; border-radius: 12px; }
+  .pk-subir svg { font-size: 1.4rem; }
+  .pk-subir strong { font-size: 0.82rem; }
+  .pk-subir small { font-size: 0.7rem; }
+  .pk-preview { max-height: 140px; }
+
+  /* los botones se quedan visibles al final de la hoja */
+  .pk-pagar-form .pk-actions, .pk-confirmar-pago .pk-actions { position: sticky; bottom: calc(-1rem - env(safe-area-inset-bottom)); margin: 0 -1rem; padding: 10px 1rem calc(10px + env(safe-area-inset-bottom)); background: var(--bg-card); border-top: 1px solid var(--border-glass); z-index: 2; }
+  .pk-confirmar-monto { padding: 0.7rem; }
+  .pk-confirmar-monto strong { font-size: 1.7rem; }
+  .pk-confirmar-archivo .pk-preview { max-height: 120px; }
+}
+
+/* ---------- Celular: orden de cobro en una sola fila por persona ---------- */
+@media (max-width: 640px) {
+  .pk-orden { gap: 6px; }
+  .pk-orden-item { flex-wrap: nowrap; gap: 8px; padding: 7px 10px; border-radius: 14px; }
+  .pk-orden-item .pk-turno { flex: none; width: 24px; height: 24px; font-size: 0.75rem; }
+  .pk-orden-item .pk-avatar { width: 32px !important; height: 32px !important; font-size: 0.8rem; }
+  .pk-orden-info { min-width: 0; gap: 0; }
+  .pk-orden-info strong { font-size: 0.88rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .pk-orden-info small { font-size: 0.7rem; }
+  .pk-orden-item .pk-chip { flex: none; padding: 2px 8px; font-size: 0.66rem; white-space: nowrap; }
+  .pk-orden-item .pk-chip svg { display: none; }
+  .pk-orden-item .pk-orden-pago { display: none; }
+  .pk-panel .pk-barra-grande, .pk-panel-cab + .pk-barra { height: 8px; }
+}
+
+/* ---------- Menú lateral (cajón) más compacto y sin barra de desplazamiento visible ---------- */
+.sb-nav { scrollbar-width: none; }
+.sb-nav::-webkit-scrollbar { display: none; }
+@media (max-width: 900px) {
+  .sidebar { padding: 16px 12px 12px; border-radius: 22px; }
+  .sb-marca { gap: 10px; padding: 2px 6px 14px; }
+  .sb-logo { width: 36px; height: 36px; border-radius: 12px; font-size: 1.1rem; }
+  .sb-marca strong { font-size: 1rem; letter-spacing: 0.5px; }
+  .sb-marca small { font-size: 0.58rem; letter-spacing: 1.2px; white-space: nowrap; }
+  .sb-cerrar { width: 32px; height: 32px; border-radius: 10px; font-size: 1rem; }
+  .sb-nav { gap: 2px; }
+  .sb-seccion { font-size: 0.6rem; letter-spacing: 1.5px; padding: 0 10px 4px; }
+  .sb-item { padding: 10px 12px; gap: 10px; font-size: 0.84rem; border-radius: 12px; min-height: 0; }
+  .sb-icono { font-size: 1.05rem; }
+  .sb-salir { padding: 10px; font-size: 0.82rem; margin-top: 8px; border-radius: 12px; }
+}
+
+/* ---------- Celular: "Quién pagó" compacto ---------- */
+@media (max-width: 640px) {
+  .pk-tabla-wrap:has(.pk-matriz2) { padding: 0; }
+  .pk-matriz2 { min-width: 0; width: max-content; }
+  .pk-matriz2 th { padding: 6px 6px; }
+  .pk-matriz2 th span { font-size: 0.7rem; white-space: nowrap; }
+  .pk-matriz2 th small { font-size: 0.58rem; white-space: nowrap; }
+  .pk-matriz2 th:first-child { font-size: 0.66rem; letter-spacing: 0.5px; text-transform: uppercase; }
+  .pk-matriz2 td { padding: 6px 4px; }
+  .pk-matriz2 th:first-child, .pk-matriz2 td:first-child { min-width: 92px; max-width: 110px; padding-left: 8px; }
+  .pk-matriz2-persona { gap: 7px; }
+  .pk-matriz2-persona .pk-avatar { width: 26px !important; height: 26px !important; font-size: 0.7rem; flex: none; }
+  .pk-matriz2-persona strong { font-size: 0.78rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 62px; }
+  .pk-matriz2 th:not(:first-child), .pk-matriz2 td:not(:first-child) { min-width: 62px; }
+  .pk-marca { width: 26px; height: 26px; font-size: 0.64rem; }
+  .pk-marca svg { font-size: 0.8rem; }
+  .pk-marca.vacio { border-width: 1.5px; }
+  .pk-matriz2-cobra { font-size: 0.56rem; margin-top: 2px; gap: 2px; }
+  .pk-matriz2-total { padding: 2px 7px; font-size: 0.7rem; }
+  .pk-leyenda { font-size: 0.7rem; display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; }
+  .pk-leyenda .pk-marca.mini { width: 16px; height: 16px; margin: 0 3px 0 0; font-size: 0.52rem; }
+  .pk-tabla-wrap:has(.pk-matriz2) { scrollbar-width: thin; }
+}
+
+/* Leyenda de "Quién pagó": ordenada, sin pisar la tabla */
+.pk-leyenda { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px; margin: 1rem 0 0.25rem; padding-top: 0.8rem; border-top: 1px solid var(--border-glass); }
+.pk-leyenda-item { display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; }
+.pk-leyenda .pk-marca.mini { width: 20px; height: 20px; margin: 0; font-size: 0.62rem; }
+.pk-leyenda .pk-marca.mini svg { font-size: 0.72rem; }
+@media (max-width: 640px) {
+  .pk-leyenda { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 10px; font-size: 0.74rem; }
+  .pk-leyenda .pk-marca.mini { width: 18px; height: 18px; margin: 0; font-size: 0.56rem; }
+}
+
+/* Celular: la leyenda en una sola línea, con letra y círculos pequeños */
+@media (max-width: 640px) {
+  .pk-leyenda { display: flex; flex-wrap: nowrap; justify-content: space-between; gap: 4px; font-size: 0.6rem; overflow-x: auto; scrollbar-width: none; }
+  .pk-leyenda::-webkit-scrollbar { display: none; }
+  .pk-leyenda-item { gap: 3px; flex: none; }
+  .pk-leyenda .pk-marca.mini { width: 13px; height: 13px; font-size: 0.45rem; }
+  .pk-leyenda .pk-marca.mini svg { font-size: 0.55rem; }
+}
+
+/* ---------- Celular: tarjetas del resumen como "fichas" compactas ----------
+   "Ahora le toca" va primero y a lo ancho; las otras dos, lado a lado debajo. */
+@media (max-width: 640px) {
+  .pk-hero { grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 0.9rem; }
+  .pk-hero-item { padding: 0.65rem 0.75rem; padding-right: 0.75rem; border-radius: 16px; gap: 2px; min-width: 0; }
+  .pk-hero-item .pk-etiqueta { font-size: 0.58rem; letter-spacing: 0.6px; padding-right: 30px; }
+  .pk-hero-item strong { font-size: 0.92rem; gap: 6px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; display: block; }
+  .pk-hero-item strong .pk-avatar { width: 22px !important; height: 22px !important; font-size: 0.6rem; vertical-align: middle; margin-right: 4px; display: inline-flex; }
+  .pk-hero-item small { font-size: 0.64rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .pk-hero-icono { width: 26px; height: 26px; top: 8px; right: 8px; border-radius: 9px; font-size: 0.85rem; }
+
+  .pk-hero-ahora { grid-column: 1 / -1; order: -1; display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; padding: 0.8rem 0.9rem; }
+  .pk-hero-ahora .pk-etiqueta { flex: 0 0 100%; font-size: 0.62rem; }
+  .pk-hero-ahora strong { flex: 0 0 100%; font-size: 1.1rem; }
+  .pk-hero-ahora strong .pk-avatar { width: 34px !important; height: 34px !important; font-size: 0.85rem; margin-right: 8px; }
+  .pk-hero-ahora small { font-size: 0.72rem; white-space: normal; }
+  .pk-hero-recibe { margin: 0; padding: 2px 10px; font-size: 0.76rem; }
+  .pk-hero-dias { margin: 0; padding: 2px 10px; font-size: 0.7rem; }
+}
+
+/* ---------- Celular: el botón principal de pago queda fijo abajo, siempre a mano ---------- */
+@media (max-width: 640px) {
+  .pk-cta-fija { position: fixed; left: 12px; right: 12px; bottom: calc(12px + env(safe-area-inset-bottom)); z-index: 60; width: auto; min-height: 48px; justify-content: center; font-size: 0.95rem; border-radius: 16px; box-shadow: 0 12px 28px rgba(24, 60, 110, 0.35); }
+  .pk-cta-fija.pk-btn-ghost { background: var(--bg-card); border: 1.5px solid var(--primary); }
+  .app-contenido:has(.pk-cta-fija) { padding-bottom: 84px; }
+}
+
+/* El botón fijo debe quedar centrado: sin heredar el ancho del 100% de las reglas de los encabezados */
+@media (max-width: 640px) {
+  .pk-seccion-cab .pk-cta-fija, .pk-seccion-acciones .pk-cta-fija { width: auto !important; max-width: none; box-sizing: border-box; margin: 0; left: 12px; right: 12px; }
+}
+
+/* ---------- Celular: métricas del Resumen como fichas pequeñas (2 por fila) ---------- */
+@media (max-width: 640px) {
+  .pk-metricas { grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 0.9rem; }
+  .pk-metrica { flex-direction: column; align-items: flex-start; gap: 8px; padding: 0.7rem 0.8rem; border-radius: 16px; min-width: 0; }
+  .pk-metrica-icono { width: 32px; height: 32px; border-radius: 10px; font-size: 1rem; }
+  .pk-metrica strong { font-size: 1.1rem; line-height: 1.1; white-space: nowrap; }
+  .pk-metrica div > span { font-size: 0.66rem; }
+  .pk-resumen-grid { gap: 10px; }
+  .pk-resumen-grid [style*="height: 260"] { height: 180px !important; }
+  .pk-subtitulo { font-size: 0.95rem; margin: 0.8rem 0 0.5rem; }
+}
+
+/* Nombre del pasanaku más llamativo en la portada */
+.pk-portada-info h1 { font-weight: 800; letter-spacing: -0.5px; text-shadow: 0 3px 14px rgba(10, 36, 84, 0.35); font-size: clamp(1.9rem, 4vw, 2.5rem); }
+.pk-portada-info p { font-weight: 500; letter-spacing: 0.2px; }
+@media (max-width: 640px) {
+  .pk-portada-info h1 { font-size: 1.85rem; line-height: 1.05; margin: 0.45rem 0 0.25rem; }
+  .pk-portada-info p { font-size: 0.82rem; }
+}
+
+/* Tarjeta "Ahora le toca a": foto y nombre a la izquierda; ícono, monto y días juntos a la derecha */
+@media (max-width: 640px) {
+  .pk-hero-ahora { display: grid; grid-template-columns: minmax(0, 1fr) auto; grid-template-rows: auto auto auto; align-items: center; column-gap: 12px; row-gap: 6px; padding: 0.8rem 0.9rem; }
+  .pk-hero-ahora .pk-hero-icono { position: static; grid-column: 2; grid-row: 1; justify-self: end; }
+  .pk-hero-ahora .pk-etiqueta { grid-column: 1; grid-row: 1; flex: none; padding-right: 0; }
+  .pk-hero-ahora > strong { grid-column: 1; grid-row: 2 / span 2; align-self: center; flex: none; min-width: 0; }
+  .pk-hero-ahora .pk-hero-recibe { grid-column: 2; grid-row: 2; justify-self: end; white-space: nowrap; }
+  .pk-hero-ahora .pk-hero-dias { grid-column: 2; grid-row: 3; justify-self: end; white-space: nowrap; }
+}

@@ -1,0 +1,66 @@
+:root {
+  /* Paleta global: azules suaves y blanco. Todo el sistema consume estas variables. */
+  --primary: #4A8FD6;            /* azul suave (botones, barras, acentos) */
+  --primary-hover: #3A7CC2;
+  --primary-text: #2C6CB3;       /* azul para texto sobre blanco (contraste legible) */
+  --primary-soft: rgba(74, 143, 214, 0.12);   /* fondo tenue de elementos activos */
+  --on-primary: #FFFFFF;         /* texto sobre el azul */
+
+  --bg-dark: #F2F6FC;            /* fondo de página: azul muy claro */
+  --bg-card: #FFFFFF;            /* tarjetas, menú lateral, ventanas */
+  --surface: #F6F9FD;            /* campos y fondos sutiles */
+  --track: #E3ECF7;              /* pista de las barras de progreso */
+
+  --text-main: #1F2D3D;
+  --text-dim: #66788F;
+  --border-glass: #DCE6F2;
+  --shadow: 0 4px 18px rgba(44, 100, 170, 0.08);
+
+  --ok: #2E9A6B;                 /* verde: pagado / completo */
+  --warn: #C98A14;               /* ámbar: en revisión / parcial */
+  --danger: #D4504F;             /* rojo: eliminar / rechazar */
+}
+
+html {
+  /* ESTO HACE QUE LOS ENLACES SE DESLICEN SUAVEMENTE EN TODA LA APP */
+  scroll-behavior: smooth; 
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  background-color: var(--bg-dark);
+  color: var(--text-main);
+  overflow-x: hidden;
+}
+
+
+/* Reset y consistencia general */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/* Barra de desplazamiento */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--primary); 
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--primary-hover);
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-dark);
+}
+
+/* Tipografía dinámica para títulos */
+h1, h2, h3 {
+  letter-spacing: -0.5px;
+}

@@ -1,0 +1,526 @@
+/* ---------------------------------- */
+/* Colores de Adriana & Root */
+/* ---------------------------------- */
+:root {
+    --blanco-perla: #fae3eb;
+    --rosa-pastel: #F4C9D4;
+    --rosa-empolvado: #fd3da3; /* Color principal (Accent1) */
+    --malva-suave: #C9A4CF; /* Color secundario */
+    --lila-claro: #d7b6dd;
+
+    /* Variables de Estilo Adaptadas */
+    --bg: #fffcfd; /* Fondo muy claro */
+    --card-bg: var(--blanco-perla);
+    --accent1: var(--rosa-empolvado); /* Rosa Fuerte */
+    --accent2: var(--lila-claro); /* Lila Suave */
+    --muted: #888;
+    --texto-claro: #333; /* Texto principal oscuro */
+}
+
+/* ---------------------------------- */
+/* Estilos del Componente Albun */
+/* ---------------------------------- */
+
+.album-page {
+    min-height: 100vh;
+    padding: 24px 16px;
+   
+    color: var(--texto-claro);
+    font-family: 'Poppins', sans-serif; 
+}
+
+/* HERO (Título) */
+.album-hero {
+    max-width: 1200px;
+    margin: 0 auto 28px;
+    text-align: center;
+}
+
+.hero-title {
+    font-size: clamp(1.8rem, 3vw, 2.6rem);
+    margin: 0 0 6px;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+    /* Aplicando degradado con tus colores */
+    background: linear-gradient(90deg, var(--accent1), var(--accent2));
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.hero-sub {
+    margin: 0 auto;
+    max-width: 880px;
+    color: var(--muted);
+    font-size: 1rem;
+    margin-bottom: 18px;
+}
+
+/* CONTROLES (Filtros) - Mantenemos la estructura de tu código */
+.controls-row {
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    margin-top: 18px;
+    max-width: 1200px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.filters-wrap {
+    display:flex;
+    gap:12px;
+    align-items:center;
+    width: 100%; /* Ocupa todo el ancho disponible */
+    justify-content: center;
+}
+
+/* Category Chips (Filtros/Secciones) */
+.categories-scroll {
+    display:flex;
+    gap:10px;
+    align-items:center;
+    overflow-x: auto; /* Permite scroll horizontal */
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    padding: 6px 0;
+}
+.categories-scroll::-webkit-scrollbar { display:none; }
+
+.category-chip {
+    flex-shrink: 0;
+    background: var(--blanco-perla);
+    border-radius: 999px;
+    padding: 8px 16px;
+    font-weight: 600;
+    color: var(--accent1);
+    border: 1px solid var(--rosa-pastel);
+    cursor:pointer;
+    transition: all 180ms ease;
+}
+.category-chip:hover {
+    background: var(--rosa-pastel);
+    color: white;
+}
+.category-chip.active {
+    color: white;
+    background: linear-gradient(90deg, var(--accent1), var(--accent2));
+    box-shadow: 0 4px 12px rgba(253, 61, 163, 0.2);
+    transform: translateY(-2px);
+    border-color: var(--accent1);
+}
+
+
+/* GRID DE FOTOS */
+.photos-grid-wrap{
+    max-width: 1200px;
+    margin: 28px auto 80px;
+    padding: 0 12px;
+}
+
+.cards-grid{
+    display:grid;
+    /* Cuadrícula de 3 o 4 columnas responsive, como un móvil */
+    grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); 
+    gap: 8px; /* Espacio entre fotos */
+}
+
+@media (min-width: 600px) {
+    .cards-grid { 
+        grid-template-columns: repeat(4, 1fr); 
+        gap: 12px;
+    }
+}
+@media (min-width: 1024px) {
+    .cards-grid { 
+        grid-template-columns: repeat(5, 1fr); 
+    }
+}
+
+.photo-card {
+    /* Crea la forma cuadrada */
+    width: 100%;
+    padding-bottom: 100%; 
+    position: relative;
+    
+    /* Imagen de fondo */
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    border-radius: 8px; /* Bordes suaves */
+    overflow: hidden;
+    cursor: pointer;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    transition: transform 200ms cubic-bezier(.2,.9,.2,1);
+}
+.photo-card:hover { 
+    transform: scale(1.05); 
+    box-shadow: 0 6px 15px rgba(253, 61, 163, 0.2);
+}
+
+/* Empty state */
+.empty-state{
+    padding: 80px;
+    text-align:center;
+    color: var(--muted);
+}
+
+/* ---------------------------------- */
+/* Estilos del Lightbox (Visor) */
+/* ---------------------------------- */
+
+.lightbox-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.95);
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.lightbox-close {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: none;
+    border: none;
+    color: var(--rosa-empolvado);
+    font-size: 2rem;
+    cursor: pointer;
+    padding: 10px;
+    z-index: 1010;
+}
+
+.lightbox-content {
+    max-width: 90%;
+    max-height: 90%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.lightbox-image {
+    max-width: 100%;
+    max-height: 100vh;
+    display: block;
+    object-fit: contain; /* Asegura que la imagen se vea completa */
+    border-radius: 8px;
+}
+
+.lightbox-nav {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(255, 163, 201, 0.1);
+    border: 3px solid transparent;
+    color: rgb(255, 39, 172);
+    font-size: 2rem;
+    padding: 15px;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: background 0.2s;
+    z-index: 1005;
+}
+
+.lightbox-nav:hover {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+.lightbox-nav.prev {
+    left: 10px;
+}
+
+.lightbox-nav.next {
+    right: 10px;
+}
+
+/* Responsive para Lightbox en móviles */
+@media (max-width: 768px) {
+    .lightbox-nav {
+        font-size: 1.5rem;
+        padding: 10px;
+    }
+    .lightbox-close {
+        font-size: 1.5rem;
+        top: 10px;
+        right: 10px;
+    }
+    .lightbox-content {
+         max-width: 100%;
+    }
+}
+
+/* ======================================= */
+/* 1. MEJORAS EN LA VISTA (RESPONSIVE & TÁCTIL) */
+/* ======================================= */
+
+.album-page {
+    /* Fondo limpio y margen para el contenido */
+    padding: 20px;
+    
+    min-height: 100vh;
+}
+
+.hero-title {
+    font-size: clamp(2rem, 5vw, 3.5rem); /* Título responsivo */
+    font-weight: 700;
+    color: #a30000; /* Color Rojo/Vino para más impacto */
+    text-align: center;
+    margin-bottom: 5px;
+}
+
+.hero-sub {
+    font-size: clamp(1rem, 2.5vw, 1.25rem);
+    color: #555;
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+/* 📱 Categorías con Scroll Horizontal (TÁCTIL) */
+.categories-scroll {
+    display: flex;
+    overflow-x: auto; /* Permite scroll horizontal */
+    padding: 10px 0;
+    gap: 10px;
+    /* MEJORA TÁCTIL: Oculta la barra de scroll en navegadores WebKit */
+    -webkit-overflow-scrolling: touch; 
+    scrollbar-width: none; /* Firefox */
+}
+
+.categories-scroll::-webkit-scrollbar {
+    display: none; /* Chrome, Safari, Opera */
+}
+
+.category-chip {
+    /* Estilo de "Chip" profesional */
+    padding: 8px 18px;
+    border: 1px solid #ddd;
+    border-radius: 20px;
+    background-color: #fff;
+    color: #555;
+    font-size: 0.9rem;
+    cursor: pointer;
+    white-space: nowrap; /* Evita que los nombres se partan */
+    transition: all 0.2s ease;
+    flex-shrink: 0; /* Evita que se encojan */
+}
+
+.category-chip:hover {
+    border-color: #a30000;
+    color: #a30000;
+}
+
+.category-chip.active {
+    background-color: #a30000;
+    color: white;
+    border-color: #a30000;
+    font-weight: 600;
+}
+
+/* Grid de fotos (Ajuste para móviles y escritorio) */
+.cards-grid {
+    display: grid;
+    /* Ajuste responsivo: Mínimo 150px, máximo 1fr */
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); 
+    gap: 15px;
+    padding: 20px 0;
+}
+
+/* ======================================= */
+/* 2. COMPONENTE PhotoCard (CARGA/ESQUELETO) */
+/* ======================================= */
+
+.photo-card-wrapper {
+    /* Este es el contenedor de la tarjeta, tamaño fijo */
+    width: 100%;
+    padding-bottom: 100%; /* Truco para mantener una proporción cuadrada (1:1) */
+    position: relative;
+    overflow: hidden;
+    border-radius: 8px; /* Bordes suaves */
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    cursor: pointer;
+    transition: transform 0.2s ease;
+}
+
+.photo-card-wrapper:hover {
+    transform: scale(1.03); /* Efecto hover suave */
+}
+
+.photo-card-img {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: opacity 0.3s ease; /* Transición de opacidad al cargar */
+}
+
+/* Placeholder/Esqueleto de carga */
+.photo-placeholder {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: #e0e0e0;
+    /* ⏳ Animación de Carga (Shimmer Effect) */
+    animation: shimmer 1.5s infinite linear;
+    background: linear-gradient(to right, #e0e0e0 8%, #f2f2f2 18%, #e0e0e0 33%);
+    background-size: 1000px 100%;
+}
+
+@keyframes shimmer {
+    0% {
+        background-position: -1000px 0;
+    }
+    100% {
+        background-position: 1000px 0;
+    }
+}
+
+
+/* ======================================= */
+/* 1. MEJORAS EN LA VISTA (RESPONSIVE & TÁCTIL) */
+/* ======================================= */
+
+.album-page {
+    /* Fondo limpio y margen para el contenido */
+    padding: 20px;
+    min-height: 100vh;
+}
+
+.hero-title {
+    font-size: clamp(2rem, 5vw, 3.5rem); /* Título responsivo */
+    font-weight: 700;
+    color: #a30000; /* Color Rojo/Vino para más impacto */
+    text-align: center;
+    margin-bottom: 5px;
+}
+
+.hero-sub {
+    font-size: clamp(1rem, 2.5vw, 1.25rem);
+    color: #555;
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+/* 📱 Categorías con Scroll Horizontal (TÁCTIL) */
+.categories-scroll {
+    display: flex;
+    overflow-x: auto; /* Permite scroll horizontal */
+    padding: 10px 0;
+    gap: 10px;
+    /* MEJORA TÁCTIL: Oculta la barra de scroll en navegadores WebKit */
+    -webkit-overflow-scrolling: touch; 
+    scrollbar-width: none; /* Firefox */
+}
+
+.categories-scroll::-webkit-scrollbar {
+    display: none; /* Chrome, Safari, Opera */
+}
+
+.category-chip {
+    /* Estilo de "Chip" profesional */
+    padding: 8px 18px;
+    border: 1px solid #ddd;
+    border-radius: 20px;
+    background-color: #fff;
+    color: #555;
+    font-size: 0.9rem;
+    cursor: pointer;
+    white-space: nowrap; /* Evita que los nombres se partan */
+    transition: all 0.2s ease;
+    flex-shrink: 0; /* Evita que se encojan */
+}
+
+.category-chip:hover {
+    border-color: #a30000;
+    color: #a30000;
+}
+
+.category-chip.active {
+    background-color: #a30000;
+    color: white;
+    border-color: #a30000;
+    font-weight: 600;
+}
+
+/* Grid de fotos (Ajuste para móviles y escritorio) */
+.cards-grid {
+    display: grid;
+    /* Ajuste responsivo: Mínimo 150px, máximo 1fr */
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); 
+    gap: 15px;
+    padding: 20px 0;
+}
+
+/* ======================================= */
+/* 2. COMPONENTE PhotoCard (CARGA/ESQUELETO) */
+/* ======================================= */
+
+.photo-card-wrapper {
+    /* Este es el contenedor de la tarjeta, tamaño fijo */
+    width: 100%;
+    padding-bottom: 100%; /* Truco para mantener una proporción cuadrada (1:1) */
+    position: relative;
+    overflow: hidden;
+    border-radius: 8px; /* Bordes suaves */
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    cursor: pointer;
+    transition: transform 0.2s ease;
+}
+
+.photo-card-wrapper:hover {
+    transform: scale(1.03); /* Efecto hover suave */
+}
+
+.photo-card-img {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: opacity 0.3s ease; /* Transición de opacidad al cargar */
+}
+
+/* Placeholder/Esqueleto de carga */
+.photo-placeholder {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: #e0e0e0;
+    /* ⏳ Animación de Carga (Shimmer Effect) */
+    animation: shimmer 1.5s infinite linear;
+    background: linear-gradient(to right, #e0e0e0 8%, #f2f2f2 18%, #e0e0e0 33%);
+    background-size: 1000px 100%;
+}
+
+@keyframes shimmer {
+    0% {
+        background-position: -1000px 0;
+    }
+    100% {
+        background-position: 1000px 0;
+    }
+}
+
+
+.lightbox-counter {
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    color: rgb(255, 255, 255);
+    background-color: rgba(255, 25, 198, 0.5);
+    padding: 5px 15px;
+    border-radius: 15px;
+    font-size: 1rem;
+}

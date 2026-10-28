@@ -1,0 +1,29 @@
+rules_version = '2';
+
+// Los jugadores no usan Firebase Auth, así que la lectura es pública (las URLs no son adivinables).
+// Solo se permite CREAR archivos con el tipo y el peso esperados; nada se puede sobrescribir ni borrar desde la app.
+service firebase.storage {
+  match /b/{bucket}/o {
+    // fotos de perfil: solo imágenes, hasta 2 MB
+    match /perfiles/{archivo} {
+      allow read: if true;
+      allow create: if request.resource.contentType.matches('image/.*')
+                    && request.resource.size < 2 * 1024 * 1024;
+    }
+
+    // comprobantes de pago: imagen (hasta 3 MB) o PDF (hasta 5 MB)
+    match /comprobantes/{grupo}/{archivo} {
+      allow read: if true;
+      allow create: if (request.resource.contentType.matches('image/.*') && request.resource.size < 3 * 1024 * 1024)
+                    || (request.resource.contentType == 'application/pdf' && request.resource.size < 5 * 1024 * 1024);
+    }
+
+    // comprobantes de las entregas del pozo: solo los sube un administrador con sesión
+    match /entregas/{grupo}/{archivo} {
+      allow read: if true;
+      allow create: if request.auth != null
+                    && ((request.resource.contentType.matches('image/.*') && request.resource.size < 3 * 1024 * 1024)
+                        || (request.resource.contentType == 'application/pdf' && request.resource.size < 5 * 1024 * 1024));
+    }
+  }
+}

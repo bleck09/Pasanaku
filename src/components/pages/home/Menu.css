@@ -1,0 +1,163 @@
+.menu-section {
+  background: linear-gradient(rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.4)), 
+              url('/FuegoSagrado/imagenes/madera.jpg');
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+  padding: 80px 20px;
+  color: white;
+  text-align: center;
+  overflow: hidden;
+}
+
+.menu-title {
+  font-size: clamp(1.8rem, 5vw, 2.8rem); /* Tamaño fluido según pantalla */
+  margin-bottom: 50px;
+}
+
+.menu-title .highlight { color: #f39c12; }
+
+.menu-container {
+  display: flex;
+  flex-direction: column;
+  gap: 60px;
+  align-items: center;
+  width: 100%;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+/* Tarjeta con Glassmorphism */
+.menu-card {
+  background: rgba(15, 15, 15, 0.8);
+  backdrop-filter: blur(12px);
+  border-radius: 30px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  width: 100%;
+  display: flex;
+  align-items: center;
+  padding: 40px;
+  gap: 40px;
+  box-shadow: 0 20px 40px rgba(0,0,0,0.6);
+  transition: transform 0.3s ease;
+}
+
+.menu-card.reverse { flex-direction: row-reverse; }
+
+.card-info { flex: 1.2; text-align: left; }
+
+.card-info h3 { font-size: 2rem; margin-bottom: 10px; color: #fff; }
+
+.description { 
+  font-size: 0.95rem; 
+  opacity: 0.8; 
+  margin-bottom: 20px; 
+  line-height: 1.5;
+}
+
+/* Ingredientes */
+.ingredients-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  margin-bottom: 25px;
+}
+
+.ingredient-item { display: flex; align-items: center; gap: 8px; font-size: 0.9rem; }
+
+.orange-dot {
+  width: 8px;
+  height: 8px;
+  background: #f39c12;
+  border-radius: 50%;
+  box-shadow: 0 0 8px #f39c12;
+}
+
+/* Barras decorativas */
+.status-bars { display: flex; height: 4px; gap: 5px; margin-bottom: 30px; }
+.bar { border-radius: 2px; }
+.bar-orange { flex: 2; background: #f39c12; }
+.bar-beige { flex: 1; background: #d2b48c; }
+.bar-green { flex: 3; background: #27ae60; }
+
+/* Footer y PRECIO LLAMATIVO */
+.card-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 15px;
+}
+
+.price-container {
+  display: flex;
+  align-items: baseline;
+  gap: 5px;
+  color: #f39c12;
+  text-shadow: 0 0 15px rgba(243, 156, 18, 0.3);
+}
+
+.price-value {
+  font-size: 2.2rem; /* Precio grande */
+  font-weight: 900;
+}
+
+.price-unit {
+  font-size: 1rem;
+  font-weight: bold;
+}
+
+.btn-3d {
+  background: #f39c12;
+  border: none;
+  padding: 12px 30px;
+  border-radius: 12px;
+  color: white;
+  font-weight: 800;
+  text-transform: uppercase;
+  cursor: pointer;
+  box-shadow: 0 4px 0 #b3740d;
+  transition: all 0.2s;
+}
+
+.btn-3d:active { transform: translateY(3px); box-shadow: none; }
+
+/* Imágenes */
+.card-image-container { flex: 1; display: flex; justify-content: center; }
+
+.plate-img {
+  width: 100%;
+  max-width: 380px;
+  filter: drop-shadow(0 25px 35px rgba(0,0,0,0.9));
+  transition: transform 0.4s ease;
+}
+
+/* ============================================================
+   MEDIA QUERIES (MÓVIL)
+   ============================================================ */
+@media (max-width: 900px) {
+  .menu-card, .menu-card.reverse {
+    flex-direction: column-reverse; /* Imagen arriba del texto en móvil */
+    padding: 30px 20px;
+    gap: 20px;
+  }
+
+  .card-info { text-align: center; width: 100%; }
+
+  .ingredients-grid {
+    justify-items: start;
+    width: fit-content;
+    margin: 0 auto 25px auto;
+  }
+
+  .plate-img {
+    max-width: 280px;
+  }
+
+  .card-footer {
+    justify-content: center;
+    flex-direction: column;
+  }
+
+  .price-value { font-size: 2.5rem; } /* Más grande aún en móvil */
+}

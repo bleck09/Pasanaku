@@ -1,0 +1,241 @@
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import toast from "react-hot-toast";
+
+// Firebase
+import { auth, db } from "../../../firebase";
+import { onAuthStateChanged, signOut } from "firebase/auth";
+import { doc, getDoc } from "firebase/firestore";
+
+// Íconos
+import { FiPieChart, FiLogOut, FiMenu, FiX, FiUser, FiChevronDown, FiLayers, FiGift, FiAperture, FiUserPlus, FiCalendar, FiGrid } from "react-icons/fi";
+
+// Módulos
+import Resumen from './Resumen';
+import Grupos from './Grupos';
+import CambiarClave from './CambiarClave';
+import { ConfirmHost } from './Confirmar';
+import Jugadores from './Jugadores';
+import MisPasanakus from './MisPasanakus';
+import Perfil from './Perfil';
+import Ruleta from './Ruleta';
+import Entregas from './Entregas';
+import CampanaPendientes from './CampanaPendientes';
+import Avatar from './Avatar';
+import Splash from './Splash';
+import { CLAVE_SESION } from './sesion';
+
+import './MenuPrincipal.css';
+import './Responsive.css';
+
+const MenuPrincipal = () => {
+  // En celular las tablas se muestran como tarjetas: cada celda lleva el nombre de su columna (data-label) para poder rotularla
+  useEffect(() => {
+    const etiquetar = () => {
+      document.querySelectorAll("table.pk-tabla").forEach((tabla) => {
+        const cabecera = [...tabla.querySelectorAll("thead th")].map((th) => th.textContent.trim());
+        tabla.querySelectorAll("tbody tr").forEach((fila) => {
+          [...fila.children].forEach((celda, i) => {
+            if (cabecera[i] && celda.dataset.label !== cabecera[i]) celda.dataset.label = cabecera[i];
+          });
+        });
+      });
+    };
+    etiquetar();
+    const observador = new MutationObserver(etiquetar);
+    observador.observe(document.body, { childList: true, subtree: true });
+    return () => observador.disconnect();
+  }, []);
+
+  const navigate = useNavigate();
+  const [role, setRole] = useState("");
+  const [userName, setUserName] = useState("");
+  const [idUsuario, setIdUsuario] = useState(""); // uid del administrador o usuario del jugador
+  const [usuarioLogin, setUsuarioLogin] = useState("");
+  const [fotoPerfil, setFotoPerfil] = useState("");
+  const [activeView, setActiveView] = useState("");
+  const [cargando, setCargando] = useState(true);
+  const [debeCambiarClave, setDebeCambiarClave] = useState(false);
+  const [destino, setDestino] = useState(null); // { grupoId, participanteId, ronda }: pago a revisar al que se salta desde la campana
+  const irARevisar = (d) => { setDestino(d); setActiveView('grupos'); setMenuAbierto(false); };
+
+  // Controles de Menús Desplegables
+  const [menuAbierto, setMenuAbierto] = useState(false);
+  const [perfilDesplegado, setPerfilDesplegado] = useState(false);
+
+  // Estructura del menú
+  // Dos roles: "administrador" (crea y gestiona pasanakus) y "jugador"
+  const ADMIN = ['administrador'];
+  const JUGADOR = ['jugador'];
+  const menuItems = [
+    { id: 'resumen', label: 'Resumen', icon: <FiPieChart />, category: 'Pasanaku', component: <Resumen onIr={irARevisar} />, roles: ADMIN },
+    { id: 'mis', label: 'Mis pasanakus', icon: <FiLayers />, category: 'Pasanaku', component: <MisPasanakus />, roles: [...ADMIN, ...JUGADOR] },
+    { id: 'grupos', label: 'Pasanakus', icon: <FiGrid />, category: 'Pasanaku', component: <Grupos destino={destino} onDestinoUsado={() => setDestino(null)} />, roles: ADMIN },
+    { id: 'entregas', label: 'Entregas del pozo', icon: <FiGift />, category: 'Pasanaku', component: <Entregas />, roles: ADMIN },
+    { id: 'ruleta', label: 'Ruleta', icon: <FiAperture />, category: 'Pasanaku', component: <Ruleta />, roles: ADMIN },
+    { id: 'ruleta-libre', label: 'Ruleta', icon: <FiAperture />, category: 'Pasanaku', component: <Ruleta simple />, roles: JUGADOR },
+    { id: 'jugadores', label: 'Jugadores', icon: <FiUserPlus />, category: 'Pasanaku', component: <Jugadores />, roles: ADMIN },
+    {
+      id: 'perfil', label: 'Mi perfil', icon: <FiUser />, category: 'Cuenta', roles: [...ADMIN, ...JUGADOR],
+      component: <Perfil id={idUsuario} nombre={userName} usuario={usuarioLogin} rol={role} foto={fotoPerfil} onFoto={setFotoPerfil} />,
+    },
+  ];
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        try {
+          const userDocRef = doc(db, "usuario", user.uid);
+          const userDocSnap = await getDoc(userDocRef);
+
+          if (userDocSnap.exists()) {
+            const data = userDocSnap.data();
+            const rolSeguro = data.rol ? data.rol.toLowerCase() : "sin rol";
+            setDebeCambiarClave(data.debeCambiarClave === true);
+            
+            setRole(rolSeguro);
+            setUserName(data.nombre || "Usuario Desconocido");
+            setIdUsuario(user.uid);
+            setUsuarioLogin(user.email || "");
+            setFotoPerfil(data.fotoUrl || "");
+
+            const allowed = menuItems.filter(item => item.roles.includes(rolSeguro));
+            if (allowed.length > 0) setActiveView(allowed[0].id);
+          } else {
+            toast.error("Tu usuario no tiene perfil asignado.");
+          }
+        } catch {
+          toast.error("Error de conexión con la base de datos.");
+        }
+      } else {
+        // Sin Firebase Authentication: puede ser un jugador con sesión propia (colección "jugadores")
+        const id = localStorage.getItem(CLAVE_SESION);
+        let jugadorOk = false;
+        if (id) {
+          try {
+            const snap = await getDoc(doc(db, "jugadores", id));
+            if (snap.exists()) {
+              const data = snap.data();
+              setRole("jugador");
+              setUserName(data.nombre || id);
+              setIdUsuario(id);
+              setUsuarioLogin(data.usuario || id);
+              setFotoPerfil((await getDoc(doc(db, "perfiles", id)).catch(() => null))?.data()?.fotoUrl || "");
+              setDebeCambiarClave(data.debeCambiarClave === true);
+              setActiveView("mis");
+              jugadorOk = true;
+            } else {
+              localStorage.removeItem(CLAVE_SESION);
+            }
+          } catch {
+            toast.error("Error de conexión con la base de datos.");
+          }
+        }
+        if (!jugadorOk) navigate("/login");
+      }
+      setCargando(false);
+    });
+
+    return () => unsubscribe();
+  }, [navigate]);
+
+  const handleLogout = async () => {
+    try {
+      await signOut(auth);
+      localStorage.clear();
+      navigate("/login");
+    } catch (error) {
+      console.error("Error al cerrar sesión:", error);
+    }
+  };
+
+  const itemsPermitidos = menuItems.filter((item) => item.roles.includes(role));
+  const vistaActual = menuItems.find((item) => item.id === activeView);
+  const fechaHoy = new Date().toLocaleDateString("es-BO", { weekday: "long", day: "numeric", month: "long" });
+  const primerNombre = (userName || "").split(" ")[0];
+
+  if (cargando) return <Splash />;
+
+  if (debeCambiarClave) return <CambiarClave onListo={() => setDebeCambiarClave(false)} onSalir={handleLogout} />;
+
+  return (
+    <div className="app-shell">
+      <ConfirmHost />
+
+      {menuAbierto && <div className="sidebar-overlay" onClick={() => setMenuAbierto(false)} />}
+
+      {/* ===== Menú lateral ===== */}
+      <aside className={`sidebar ${menuAbierto ? 'open' : ''}`}>
+        <div className="sb-marca">
+          <span className="sb-logo"><FiLayers /></span>
+          <div>
+            <strong>PASA<span>NAKU</span></strong>
+            <small>Ahorro rotativo</small>
+          </div>
+          <button type="button" className="sb-cerrar" onClick={() => setMenuAbierto(false)} aria-label="Cerrar menú"><FiX /></button>
+        </div>
+
+        <nav className="sb-nav">
+          <span className="sb-seccion">Menú</span>
+          {itemsPermitidos.map((item) => (
+            <button
+              key={item.id}
+              type="button"
+              className={`sb-item ${activeView === item.id ? 'activo' : ''}`}
+              onClick={() => { setActiveView(item.id); setMenuAbierto(false); }}
+            >
+              <span className="sb-icono">{item.icon}</span>
+              {item.label}
+            </button>
+          ))}
+        </nav>
+
+        <button type="button" className="sb-salir" onClick={handleLogout}><FiLogOut /> Cerrar sesión</button>
+      </aside>
+
+      {/* ===== Zona principal: barra superior + contenido ===== */}
+      <div className="app-main">
+        <header className="topbar">
+          <button type="button" className="menu-toggle" onClick={() => setMenuAbierto(true)} aria-label="Abrir menú"><FiMenu /></button>
+
+          <div className="topbar-titulo">
+            <h1>Hola, {primerNombre || "bienvenido"}</h1>
+            <p>{vistaActual?.label || "Pasanaku"}</p>
+          </div>
+
+          <div className="topbar-der">
+            {role === 'administrador' && <CampanaPendientes onIr={irARevisar} />}
+            <span className="topbar-fecha"><FiCalendar /> {fechaHoy}</span>
+
+            <div className="topbar-perfil">
+              <button type="button" className="perfil-boton" onClick={() => setPerfilDesplegado(!perfilDesplegado)}>
+                <Avatar nombre={userName} foto={fotoPerfil} tam={42} className="perfil-avatar" />
+                <span className="perfil-texto">
+                  <strong>{userName}</strong>
+                  <small>{role}</small>
+                </span>
+                <FiChevronDown />
+              </button>
+
+              {perfilDesplegado && (
+                <>
+                  <div className="perfil-fondo" onClick={() => setPerfilDesplegado(false)} />
+                  <div className="perfil-menu">
+                    <button type="button" className="perfil-opcion" onClick={() => { setActiveView('perfil'); setPerfilDesplegado(false); }}><FiUser /> Mi perfil</button>
+                    <button type="button" className="perfil-opcion peligro" onClick={handleLogout}><FiLogOut /> Cerrar sesión</button>
+                  </div>
+                </>
+              )}
+            </div>
+          </div>
+        </header>
+
+        <main className="app-contenido">
+          {vistaActual ? vistaActual.component : <div className="pk-vacio">Selecciona una opción del menú</div>}
+        </main>
+      </div>
+    </div>
+  );
+};
+
+export default MenuPrincipal;
