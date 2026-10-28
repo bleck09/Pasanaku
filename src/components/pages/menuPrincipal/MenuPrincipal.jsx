@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, lazy, Suspense } from 'react';
 import { useNavigate } from 'react-router-dom';
 import toast from "react-hot-toast";
 
@@ -11,7 +11,9 @@ import { doc, getDoc } from "firebase/firestore";
 import { FiPieChart, FiLogOut, FiMenu, FiX, FiUser, FiChevronDown, FiLayers, FiGift, FiAperture, FiUserPlus, FiCalendar, FiGrid } from "react-icons/fi";
 
 // Módulos
-import Resumen from './Resumen';
+import Cargando from './Cargando';
+// El resumen del administrador trae las gráficas: se descarga solo cuando se abre
+const Resumen = lazy(() => import('./Resumen'));
 import Grupos from './Grupos';
 import CambiarClave from './CambiarClave';
 import { ConfirmHost } from './Confirmar';
@@ -248,7 +250,7 @@ const MenuPrincipal = () => {
         </header>
 
         <main className="app-contenido">
-          {vistaActual ? vistaActual.component : <div className="pk-vacio">Selecciona una opción del menú</div>}
+          <Suspense fallback={<Cargando />}>{vistaActual ? vistaActual.component : <div className="pk-vacio">Selecciona una opción del menú</div>}</Suspense>
         </main>
       </div>
     </div>

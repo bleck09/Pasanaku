@@ -1,12 +1,17 @@
-import React from 'react';
-import { createHashRouter } from "react-router-dom"; // 👈 cambia aquí
+import React, { lazy, Suspense } from 'react';
+import { createHashRouter } from "react-router-dom";
 import Error404 from "../components/pages/error404/Error404";
-import Products from '../components/pages/productos/Products';
-import Albun from '../components/pages/albun/Albun';
 import App from '../components/templates/App';
-import Home from '../components/pages/home/Home';
-import Login from '../components/pages/login/Login';
-import MenuPrincipal from '../components/pages/menuPrincipal/MenuPrincipal';
+import Splash from '../components/pages/menuPrincipal/Splash';
+
+// Cada pantalla se descarga solo cuando se visita (el inicio no carga Firebase ni las gráficas)
+const Products = lazy(() => import('../components/pages/productos/Products'));
+const Albun = lazy(() => import('../components/pages/albun/Albun'));
+const Home = lazy(() => import('../components/pages/home/Home'));
+const Login = lazy(() => import('../components/pages/login/Login'));
+const MenuPrincipal = lazy(() => import('../components/pages/menuPrincipal/MenuPrincipal'));
+
+const cargando = (pantalla) => <Suspense fallback={<Splash />}>{pantalla}</Suspense>;
 
 const router = createHashRouter([  // 👈 también aquí
   {
@@ -16,25 +21,25 @@ const router = createHashRouter([  // 👈 también aquí
     children: [
       {
         index: true,
-        element: <Home />,
+        element: cargando(<Home />),
       },
       {
         path: "/productos",
-        element: <Products />,
+        element: cargando(<Products />),
       },
       {
         path: "/albun",
-        element: <Albun />,
+        element: cargando(<Albun />),
       },
        {
         path: "/menuPrincipal",
-        element: <MenuPrincipal/>,
+        element: cargando(<MenuPrincipal />),
       },
     ],
   },
   {
     path: "/login",
-    element: <Login />,
+    element: cargando(<Login />),
   },
 ]);
 
