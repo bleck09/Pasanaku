@@ -1535,8 +1535,8 @@ button.pk-chip { font-family: inherit; }
 .pk-enlace { justify-self: start; background: none; border: 0; padding: 4px 0; color: var(--primary-text); font-family: inherit; font-weight: 600; font-size: 0.85rem; cursor: pointer; text-decoration: underline; text-underline-offset: 3px; }
 
 /* Imagen del cerdito en las ventanas de confirmación */
-.pk-confirmar-imagen { width: 130px; aspect-ratio: 440 / 380; margin-top: -6px; }
-.pk-confirmar-imagen svg { width: 100%; height: 100%; overflow: visible; filter: drop-shadow(0 10px 12px rgba(24, 60, 110, 0.2)); }
+.pk-confirmar-imagen { position: relative; width: 130px; aspect-ratio: 440 / 380; margin-top: -6px; }
+.pk-confirmar-imagen .lp-cerdito-svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; pointer-events: none; animation: none; filter: drop-shadow(0 10px 12px rgba(24, 60, 110, 0.2)); }
 
 /* Perfil moderno: portada, foto grande con cámara, chips y pestañas en píldora */
 .pk-perfil-vista { max-width: 860px; }
@@ -1584,3 +1584,6 @@ button.pk-chip { font-family: inherit; }
 .ef-zoom { display: flex; align-items: center; gap: 8px; padding: 0 4px; }
 .ef-zoom input { flex: 1; min-width: 0; accent-color: var(--primary); }
 .ef-zoom strong { min-width: 38px; text-align: right; font-size: 0.85rem; color: var(--primary-text); }
+
+/* El navegador (Edge) trae su propio ojo en los campos de contraseña: se oculta para dejar solo el de la app */
+.pk-campo-clave input::-ms-reveal, .pk-campo-clave input::-ms-clear { display: none; }

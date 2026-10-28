@@ -5,8 +5,8 @@
 .cc-deco.d2 { width: 260px; height: 260px; bottom: -110px; right: -90px; opacity: 0.85; }
 
 .cc-tarjeta { position: relative; z-index: 1; width: 100%; max-width: 430px; display: grid; gap: 12px; padding: 22px 20px 20px; border-radius: 26px; background: rgba(255, 255, 255, 0.92); border: 1px solid var(--border-glass); box-shadow: 0 24px 60px rgba(47, 109, 181, 0.18); }
-.cc-cerdo { width: min(150px, 42vw); aspect-ratio: 440 / 380; margin: -4px auto 0; }
-.cc-cerdo svg { width: 100%; height: 100%; overflow: visible; filter: drop-shadow(0 10px 12px rgba(24, 60, 110, 0.2)); }
+.cc-cerdo { position: relative; width: min(150px, 42vw); aspect-ratio: 440 / 380; margin: -4px auto 0; }
+.cc-cerdo .lp-cerdito-svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; pointer-events: none; animation: none; filter: drop-shadow(0 10px 12px rgba(24, 60, 110, 0.2)); }
 .cc-tarjeta h1 { margin: 0; text-align: center; font-size: 1.35rem; line-height: 1.25; overflow-wrap: anywhere; }
 .cc-tarjeta h1 span { background: linear-gradient(135deg, #4A8FD6, #2F6DB5); -webkit-background-clip: text; background-clip: text; color: transparent; }
 .cc-texto { margin: 0; text-align: center; color: var(--text-dim); font-size: 0.9rem; line-height: 1.5; }
