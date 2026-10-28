@@ -474,3 +474,17 @@ img, svg, video { max-width: 100%; }
   .pk-seccion-cab { flex-direction: row; align-items: center; justify-content: space-between; margin: 0.2rem 0 0.7rem; }
   .pk-seccion-cab .pk-seccion-acciones .pk-btn:not(.pk-cta-fija) { width: auto; min-height: 36px; padding: 6px 12px; font-size: 0.8rem; }
 }
+
+/* Formulario de crear pasanaku: nada puede ser más ancho que la pantalla */
+.pkf, .pkf-bloque, .pkf-fila, .pkf-opciones { grid-template-columns: minmax(0, 1fr); min-width: 0; }
+.pkf > *, .pkf-bloque > *, .pkf-fila > * { min-width: 0; max-width: 100%; }
+.pkf-campo input, .pkf-campo select, .pkf-fecha { min-width: 0; box-sizing: border-box; }
+@media (min-width: 701px) {
+  .pkf-fila { grid-template-columns: 2fr 1fr 1fr; }
+  .pkf-fila-multa { grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); }
+  .pkf-opciones { grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); }
+}
+@media (max-width: 700px) {
+  .pkf-mes { grid-template-columns: repeat(auto-fill, minmax(40px, 1fr)); max-width: 100%; }
+  .pkf-dia { flex: 1 1 52px; }
+}
