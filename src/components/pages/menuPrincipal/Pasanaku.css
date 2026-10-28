@@ -1440,3 +1440,14 @@ button.pk-chip { font-family: inherit; }
 .pk-gcard-multa svg { color: #C23B3B !important; }
 .pk-gcard .pk-fila-avance { flex: none; width: 100%; height: 6px; margin: 2px 0 0; background: var(--track, #E3ECF7); }
 .pk-gcard .pk-fila-avance > span { background: linear-gradient(90deg, #2E9A6B, #5FD0A0); }
+
+/* Resumen general: la alcancía de la página de inicio en lugar de un ícono */
+.pk-resumen-general { min-height: 132px; align-content: center; padding-right: 42%; }
+.pk-resumen-general-cerdo { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); width: clamp(120px, 34%, 200px); aspect-ratio: 440 / 380; pointer-events: none; }
+.pk-resumen-general-cerdo .lp-cerdito-svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; filter: drop-shadow(0 10px 12px rgba(10, 36, 84, 0.35)); animation: pk-cerdo-flota 4.5s ease-in-out infinite; }
+@keyframes pk-cerdo-flota { 0%, 100% { transform: translateY(0) rotate(-2deg); } 50% { transform: translateY(-5px) rotate(2deg); } }
+@media (max-width: 640px) { .pk-resumen-general { min-height: 118px; padding-right: 44%; } .pk-resumen-general-cerdo { right: 6px; width: 42%; } }
+@media (prefers-reduced-motion: reduce) { .pk-resumen-general-cerdo .lp-cerdito-svg { animation: none; } }
+/* La alcancía se ajusta a la altura de la tarjeta para que no se corte */
+.pk-resumen-general-cerdo { top: 8px; bottom: 8px; transform: none; width: auto; aspect-ratio: 440 / 380; max-width: 46%; }
+@media (max-width: 640px) { .pk-resumen-general-cerdo { right: 6px; width: auto; } }

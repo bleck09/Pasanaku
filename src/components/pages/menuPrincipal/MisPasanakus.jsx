@@ -7,7 +7,7 @@ import { ocupado, subirConProgreso } from "./ocupado";
 import { db, storage } from "../../../firebase";
 import { idSesion } from "./sesion";
 import { FiCheck, FiGift, FiClock, FiImage, FiCamera, FiFileText, FiArrowRight, FiDownload, FiLayers, FiPlay, FiAward, FiList, FiDollarSign, FiUsers, FiX, FiSearch, FiEye, FiGrid, FiCalendar, FiAlertTriangle } from "react-icons/fi";
-import { MdSavings } from "react-icons/md";
+import Cerdito3D from "../home/Cerdito3D";
 import { describirFrecuencia, esConfirmado, estadoGrupo, estaIniciado, fechaRonda, fechaHora, formatFecha, limiteSinMulta, money, resumenPago, useColeccion } from "./pasanakuUtils";
 import { comprimirImagen, esPdf, extensionDe, kb, MAX_PDF } from "./imagenes";
 import Modal from "./Modal";
@@ -605,13 +605,6 @@ const MisPasanakus = () => {
 
   return (
     <div className="pk-view">
-      <div className="pk-header">
-        <div>
-          <h1>Mis pasanakus</h1>
-          <p>Los grupos en los que participas.</p>
-        </div>
-      </div>
-
       {misGrupos.length === 0 ? (
         <p className="pk-vacio">Todavía no estás en ningún pasanaku. Pídele al administrador que te agregue.</p>
       ) : (
@@ -620,7 +613,7 @@ const MisPasanakus = () => {
             <span>Resumen general</span>
             <strong>{cuenta("curso")}</strong>
             <small>Pasanaku{cuenta("curso") === 1 ? "" : "s"} activo{cuenta("curso") === 1 ? "" : "s"}</small>
-            <MdSavings className="pk-resumen-general-icono" aria-hidden="true" />
+            <div className="pk-resumen-general-cerdo" aria-hidden="true"><Cerdito3D /></div>
           </div>
 
           <div className="pk-categorias">
