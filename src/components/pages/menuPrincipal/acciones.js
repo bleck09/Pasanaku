@@ -63,7 +63,13 @@ export const sugerirUsuario = (nombre, jugadores) => {
 };
 
 // Cada persona elige la contraseña que quiera
-export const validarClave = (clave) => (clave.length < 4 ? "Debe tener al menos 4 caracteres." : null);
+// Mínimo 8 caracteres y que no sea una de las contraseñas más obvias
+const OBVIAS = ["12345678", "123456789", "1234567890", "87654321", "11111111", "00000000", "password", "contraseña", "qwertyui", "abcd1234", "pasanaku"];
+export const validarClave = (clave) => {
+  if (clave.length < 8) return "Debe tener al menos 8 caracteres.";
+  if (OBVIAS.includes(clave.toLowerCase()) || /^(.)\1+$/.test(clave)) return "Esa contraseña es demasiado fácil de adivinar. Elige otra.";
+  return null;
+};
 
 // Contraseña temporal aleatoria (criptográfica), sin caracteres que se confunden (0/O, 1/l/I)
 export const generarClave = (largo = 8) => {
@@ -98,7 +104,9 @@ export const crearCuentaJugador = async ({ nombre, usuario, clave }) => {
   if ((await conPaso("jugadores (lectura)", () => getDoc(ref))).exists()) throw Object.assign(new Error("usuario existente"), { code: "usuario-existente" });
 
   const { sal, hash } = await hashClave(clave);
-  await conPaso("jugadores", () => setDoc(ref, { nombre, usuario: user, sal, hash, iter: ITERACIONES, debeCambiarClave: true, creado: Date.now() }));
+  // el hash va en "claves" (ilegible para los navegadores); el perfil público solo lleva la sal
+  await conPaso("claves", () => setDoc(doc(db, "claves", user), { hash }));
+  await conPaso("jugadores", () => setDoc(ref, { nombre, usuario: user, sal, iter: ITERACIONES, debeCambiarClave: true, creado: Date.now() }));
   await conPaso("temporales", () => guardarTemporal(user, clave));
   return { uid: user, usuario: user };
 };
@@ -118,6 +126,7 @@ export const mensajeErrorCuenta = (err) => {
 // El administrador define una contraseña temporal nueva (no puede ver la anterior)
 export const resetearClave = async (uid, clave) => {
   const { sal, hash } = await hashClave(clave);
-  await updateDoc(doc(db, "jugadores", uid), { sal, hash, iter: ITERACIONES, debeCambiarClave: true });
+  await setDoc(doc(db, "claves", uid), { hash });
+  await updateDoc(doc(db, "jugadores", uid), { sal, iter: ITERACIONES, debeCambiarClave: true });
   await guardarTemporal(uid, clave);
 };

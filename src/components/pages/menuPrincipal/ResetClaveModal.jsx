@@ -69,7 +69,7 @@ const ResetClaveModal = ({ persona, onListo, onCerrar }) => {
         </div>
         <label>Nueva contraseña temporal
           <span className="pk-clave">
-            <input type="text" value={clave} onChange={(e) => setClave(e.target.value)} minLength={4} required />
+            <input type="text" value={clave} onChange={(e) => setClave(e.target.value)} minLength={8} required />
             <button type="button" className="pk-btn pk-btn-ghost" onClick={() => setClave(generarClave())}><FiRefreshCw /> Generar</button>
           </span>
         </label>

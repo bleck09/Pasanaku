@@ -9,7 +9,8 @@ import toast, { Toaster } from "react-hot-toast";
 import { FiEye, FiEyeOff, FiUser, FiLock, FiArrowLeft, FiArrowRight } from "react-icons/fi";
 import Cerdito3D from "../home/Cerdito3D";
 import { normalizarUsuario } from "../menuPrincipal/acciones";
-import { hashClave, verificarClave } from "../menuPrincipal/claves";
+import { hashClave } from "../menuPrincipal/claves";
+import { CLAVE_PRUEBA, probarClave } from "../menuPrincipal/accesoJugador";
 import { CLAVE_SESION } from "../menuPrincipal/sesion";
 import "./Login.css";
 
@@ -50,7 +51,9 @@ const Login = () => {
       throw incorrecto;
     }
     const perfil = snap.data();
-    if (!(await verificarClave(password, perfil))) throw incorrecto;
+    const prueba = await probarClave(id, password, perfil);
+    if (!prueba) throw incorrecto;
+    sessionStorage.setItem(CLAVE_PRUEBA, prueba);
 
     await signOut(auth); // por si había una sesión de administrador abierta
     localStorage.setItem(CLAVE_SESION, id);

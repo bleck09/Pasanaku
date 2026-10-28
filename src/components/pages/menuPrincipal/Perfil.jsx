@@ -8,7 +8,8 @@ import { auth, db, storage } from "../../../firebase";
 import { FiCamera, FiGrid, FiLock, FiTrash2, FiUser } from "react-icons/fi";
 import Avatar from "./Avatar";
 import { validarClave } from "./acciones";
-import { hashClave, ITERACIONES, verificarClave } from "./claves";
+import { hashClave, ITERACIONES } from "./claves";
+import { probarClave } from "./accesoJugador";
 import { comprimirImagen, extensionDe } from "./imagenes";
 import QRPerfil from "./QRPerfil";
 import "./Pasanaku.css";
@@ -75,14 +76,15 @@ const Perfil = ({ id, nombre, usuario, rol, foto, onFoto }) => {
         await reauthenticateWithCredential(auth.currentUser, EmailAuthProvider.credential(auth.currentUser.email, actual));
         await updatePassword(auth.currentUser, nueva);
       } else {
-        const referencia = doc(db, "jugadores", id);
-        const datos = (await getDoc(referencia)).data();
-        if (!datos || !(await verificarClave(actual, datos))) {
+        const datos = (await getDoc(doc(db, "jugadores", id))).data();
+        const prueba = datos ? await probarClave(id, actual, datos) : null;
+        if (!prueba) {
           toast.error("La contraseña actual no es correcta.");
           return;
         }
-        const { sal, hash } = await hashClave(nueva);
-        await updateDoc(referencia, { sal, hash, iter: ITERACIONES, previo: datos.hash });
+        // se conserva la misma sal; las reglas exigen la prueba de la contraseña actual para aceptar el cambio
+        const { hash } = await hashClave(nueva, datos.sal, datos.iter || ITERACIONES);
+        await updateDoc(doc(db, "claves", id), { hash, previa: prueba });
       }
       toast.success("Contraseña actualizada");
       setActual(""); setNueva(""); setRepetir("");
@@ -131,8 +133,8 @@ const Perfil = ({ id, nombre, usuario, rol, foto, onFoto }) => {
         <form className="pk-card pk-form pk-perfil-seccion" onSubmit={cambiarClave}>
           <h3><FiLock /> Cambiar contraseña</h3>
           <label>Contraseña actual<input type="password" value={actual} onChange={(e) => setActual(e.target.value)} required autoComplete="current-password" /></label>
-          <label>Contraseña nueva<input type="password" value={nueva} onChange={(e) => setNueva(e.target.value)} minLength={4} required autoComplete="new-password" /></label>
-          <label>Repite la contraseña nueva<input type="password" value={repetir} onChange={(e) => setRepetir(e.target.value)} minLength={4} required autoComplete="new-password" /></label>
+          <label>Contraseña nueva<input type="password" value={nueva} onChange={(e) => setNueva(e.target.value)} minLength={8} required autoComplete="new-password" /></label>
+          <label>Repite la contraseña nueva<input type="password" value={repetir} onChange={(e) => setRepetir(e.target.value)} minLength={8} required autoComplete="new-password" /></label>
           <small className="pkf-nota">Nadie puede ver tu contraseña: se guarda cifrada. Si la olvidas, el administrador te asigna una temporal.</small>
           <div className="pk-actions">
             <button type="submit" className="pk-btn" disabled={guardando}>{guardando ? "Guardando..." : "Guardar contraseña"}</button>

@@ -21,6 +21,7 @@ import Perfil from './Perfil';
 import Ruleta from './Ruleta';
 import Entregas from './Entregas';
 import CampanaPendientes from './CampanaPendientes';
+import MigracionSeguridad from './MigracionSeguridad';
 import Avatar from './Avatar';
 import Splash from './Splash';
 import { CLAVE_SESION } from './sesion';
@@ -143,6 +144,7 @@ const MenuPrincipal = () => {
     try {
       await signOut(auth);
       localStorage.clear();
+      sessionStorage.clear();
       navigate("/login");
     } catch (error) {
       console.error("Error al cerrar sesión:", error);
@@ -161,6 +163,7 @@ const MenuPrincipal = () => {
   return (
     <div className="app-shell">
       <ConfirmHost />
+      {role === 'administrador' && <MigracionSeguridad />}
 
       {menuAbierto && <div className="sidebar-overlay" onClick={() => setMenuAbierto(false)} />}
 

@@ -15,21 +15,39 @@ service cloud.firestore {
             && request.resource.data.get('debeCambiarClave', false) == false);
     }
 
-    // Jugadores: el id del documento es el usuario. Sin sesión de Firebase, así que:
-    //  - para entrar se lee SU documento por id (get); listar a todos es solo del administrador
-    //  - la contraseña se guarda como hash (nunca en texto)
-    //  - un jugador solo puede poner su contraseña propia mientras tenga la temporal; después solo el administrador
+    // Jugadores: el id del documento es el usuario. No usan Firebase Authentication.
+    //  - el perfil público solo lleva nombre, sal e iteraciones: NUNCA el hash de la contraseña
+    //  - el hash vive en "claves", que ningún navegador puede leer (solo las reglas lo consultan)
+    //  - listar a todos es solo del administrador
     match /jugadores/{id} {
       allow get: if true;
       allow list: if isAdmin();
       allow create, delete: if isAdmin();
       allow update: if isAdmin()
-        || (resource.data.debeCambiarClave == true
+        // al terminar el cambio obligatorio de contraseña: solo se apaga la marca, y únicamente si en ese mismo lote
+        // se cambió el hash en "claves" (cosa que exige conocer la contraseña temporal)
+        || (request.resource.data.diff(resource.data).affectedKeys().hasOnly(['debeCambiarClave'])
             && request.resource.data.debeCambiarClave == false
-            && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['sal', 'hash', 'iter', 'debeCambiarClave']))
-        // cambio voluntario desde "Mi perfil": la app verifica la contraseña actual y envía el hash anterior
-        || (request.resource.data.diff(resource.data).affectedKeys().hasOnly(['sal', 'hash', 'iter', 'previo'])
-            && request.resource.data.previo == resource.data.hash);
+            && getAfter(/databases/$(database)/documents/claves/$(id)).data.hash != get(/databases/$(database)/documents/claves/$(id)).data.hash);
+    }
+
+    // Verificadores de contraseña de los jugadores. Nadie puede leerlos desde un navegador.
+    // Cambiarlos exige enviar la prueba (el hash) de la contraseña actual: sin conocerla no se puede.
+    match /claves/{id} {
+      allow read: if false;
+      allow create, delete: if isAdmin();
+      allow update: if isAdmin()
+        || (request.resource.data.keys().hasOnly(['hash', 'previa'])
+            && request.resource.data.diff(resource.data).affectedKeys().hasAll(['hash', 'previa'])
+            && request.resource.data.hash is string && request.resource.data.hash.size() == 64
+            && request.resource.data.previa == resource.data.hash);
+    }
+
+    // Comprobar una contraseña: leer acceso/{usuario}/prueba/{hash}. La lectura solo se permite si el hash es el correcto;
+    // el documento no existe, lo único que importa es si la regla deja leer o no.
+    match /acceso/{id}/prueba/{p} {
+      allow get: if get(/databases/$(database)/documents/claves/$(id)).data.hash == p;
+      allow list, write: if false;
     }
 
     // Foto de perfil visible para todos (id = usuario del jugador o uid del administrador)

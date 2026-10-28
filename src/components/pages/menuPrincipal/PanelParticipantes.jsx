@@ -255,7 +255,7 @@ const PanelParticipantes = ({ grupo, onSortear }) => {
                 <input placeholder="Nombre" value={nombre} onChange={(e) => cambiarNombre(e.target.value)} required />
                 <input placeholder="Usuario" value={usuario} onChange={(e) => { setUsuarioEditado(true); setUsuario(normalizarUsuario(e.target.value)); }} minLength={3} required autoCapitalize="none" />
                 <span className="pk-clave">
-                  <input type="text" placeholder="Contraseña temporal" value={clave} onChange={(e) => setClave(e.target.value)} minLength={4} required />
+                  <input type="text" placeholder="Contraseña temporal" value={clave} onChange={(e) => setClave(e.target.value)} minLength={8} required />
                   <button type="button" className="pk-btn pk-btn-ghost" onClick={() => setClave(generarClave())}><FiRefreshCw /> Generar</button>
                   {clave && <button type="button" className="pk-icon" title="Copiar" onClick={() => { navigator.clipboard?.writeText(clave); toast.success("Contraseña copiada"); }}><FiCopy /></button>}
                 </span>

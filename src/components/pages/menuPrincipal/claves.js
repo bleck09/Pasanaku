@@ -1,6 +1,6 @@
 // Contraseñas de los jugadores: nunca se guardan en texto. Se guarda solo un hash PBKDF2-SHA256 con sal
 // propia por persona, calculado en el navegador (Web Crypto). Nadie puede ver una contraseña; solo reemplazarla.
-export const ITERACIONES = 150000;
+export const ITERACIONES = 310000; // las cuentas ya creadas conservan sus propias iteraciones
 
 const aHex = (buffer) => Array.from(new Uint8Array(buffer), (b) => b.toString(16).padStart(2, "0")).join("");
 const deHex = (hex) => new Uint8Array((hex.match(/.{2}/g) || []).map((b) => parseInt(b, 16)));
