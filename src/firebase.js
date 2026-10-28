@@ -1,5 +1,5 @@
 import { initializeApp } from "firebase/app";
-import { getFirestore } from "firebase/firestore";
+import { initializeFirestore, getFirestore, persistentLocalCache, persistentMultipleTabManager } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
 import { getStorage } from "firebase/storage";
 import { getAnalytics } from "firebase/analytics";
@@ -27,6 +27,14 @@ const app = initializeApp(firebaseConfig);
 
 // Exportamos las herramientas para el Login, Base de Datos, Imágenes y Analíticas
 export const auth = getAuth(app);
-export const db = getFirestore(app);
+// Los datos ya consultados quedan guardados en el celular para poder verlos sin internet (solo lectura: los pagos exigen conexión).
+let baseDatos;
+try {
+  baseDatos = initializeFirestore(app, { localCache: persistentLocalCache({ tabManager: persistentMultipleTabManager() }) });
+} catch {
+  baseDatos = getFirestore(app);
+}
+export const db = baseDatos;
 export const storage = getStorage(app);
+storage.maxUploadRetryTime = 20000; // sin internet, la subida falla en 20 s en vez de reintentar 10 minutos
 export const analytics = getAnalytics(app);

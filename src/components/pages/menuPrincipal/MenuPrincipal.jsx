@@ -5,7 +5,7 @@ import toast from "react-hot-toast";
 // Firebase
 import { auth, db } from "../../../firebase";
 import { onAuthStateChanged, signOut } from "firebase/auth";
-import { doc, getDoc } from "firebase/firestore";
+import { doc, getDoc, terminate, clearIndexedDbPersistence } from "firebase/firestore";
 
 // Íconos
 import { FiPieChart, FiLogOut, FiMenu, FiX, FiUser, FiChevronDown, FiLayers, FiGift, FiAperture, FiUserPlus, FiCalendar, FiGrid } from "react-icons/fi";
@@ -27,6 +27,7 @@ import MigracionSeguridad from './MigracionSeguridad';
 import OcupadoHost from './OcupadoHost';
 import Avatar from './Avatar';
 import Splash from './Splash';
+import AvisoSinConexion from './AvisoSinConexion';
 import { CLAVE_SESION } from './sesion';
 
 import './MenuPrincipal.css';
@@ -150,7 +151,10 @@ const MenuPrincipal = () => {
       await signOut(auth);
       localStorage.clear();
       sessionStorage.clear();
-      navigate("/login");
+      // Se borran también los datos guardados en el celular (por si lo usa otra persona) y se recarga la app
+      try { await terminate(db); await clearIndexedDbPersistence(db); } catch { /* si no se pudo borrar, igual se cierra la sesión */ }
+      window.location.hash = "#/login";
+      window.location.reload();
     } catch (error) {
       console.error("Error al cerrar sesión:", error);
     }
@@ -175,6 +179,7 @@ const MenuPrincipal = () => {
     <div className="app-shell">
       <ConfirmHost />
       <OcupadoHost />
+      <AvisoSinConexion />
       {role === 'administrador' && <MigracionSeguridad />}
 
       {menuAbierto && <div className="sidebar-overlay" onClick={() => setMenuAbierto(false)} />}

@@ -1498,3 +1498,4 @@ button.pk-chip { font-family: inherit; }
 }
 .pk-plazo-linea { display: flex; align-items: center; justify-content: center; gap: 6px; margin: 0; padding: 8px 12px; border-radius: 12px; background: rgba(74, 143, 214, 0.1); color: var(--text-main); font-size: 0.85rem; }
 .pk-plazo-linea svg { color: var(--primary-text); }
+.pk-sin-red { position: fixed; left: 0; right: 0; bottom: 0; z-index: 3000; display: flex; align-items: center; justify-content: center; gap: 8px; padding: 10px 14px calc(10px + env(safe-area-inset-bottom)); background: #2B3A55; color: #fff; font-size: 0.85rem; text-align: center; }

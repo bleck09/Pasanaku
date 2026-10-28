@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import PropTypes from "prop-types";
 import toast from "react-hot-toast";
-import { addDoc, collection } from "firebase/firestore";
+import { collection, doc, runTransaction } from "firebase/firestore";
 import { ref } from "firebase/storage";
 import { db, storage } from "../../../firebase";
 import { FiArrowLeft, FiArrowRight, FiCheck, FiAlertTriangle, FiDownload, FiCopy, FiFileText, FiClock } from "react-icons/fi";
@@ -49,6 +49,7 @@ const PagarHoja = ({ grupo, ronda, yo, uid, mio, onCerrar }) => {
   };
 
   const enviar = async () => {
+    if (!navigator.onLine) return toast.error("Sin conexión: el pago solo se envía con internet. Inténtalo cuando vuelva la conexión.", { duration: 6000 });
     setEnviando(true);
     const trabajo = ocupado.iniciar({ titulo: "Enviando tu pago...", texto: "Estamos subiendo tu comprobante. No cierres esta página." });
     let comprobanteUrl;
@@ -66,9 +67,13 @@ const PagarHoja = ({ grupo, ronda, yo, uid, mio, onCerrar }) => {
     }
     try {
       trabajo.texto("Registrando tu pago...");
-      await addDoc(collection(db, "pagos"), {
-        pasanakuId: grupo.id, ronda, participanteId: yo.id, uid,
-        monto: montoNum, estado: "revision", comprobanteUrl, comprobanteTipo: esPdf(archivo) ? "pdf" : "imagen", fecha: Date.now(),
+      // Una transacción solo se completa con el servidor: sin internet falla, nunca queda pendiente para enviarse después ni se duplica
+      const nuevo = doc(collection(db, "pagos"));
+      await runTransaction(db, async (t) => {
+        t.set(nuevo, {
+          pasanakuId: grupo.id, ronda, participanteId: yo.id, uid,
+          monto: montoNum, estado: "revision", comprobanteUrl, comprobanteTipo: esPdf(archivo) ? "pdf" : "imagen", fecha: Date.now(),
+        });
       });
       await trabajo.terminar();
       setConfirmando(false);
@@ -76,7 +81,7 @@ const PagarHoja = ({ grupo, ronda, yo, uid, mio, onCerrar }) => {
       setEnviado(true);
     } catch (err) {
       console.error("Registrar pago:", err);
-      toast.error(`No se pudo registrar el pago (${err.code || "error"}). Revisa las reglas de Firestore.`, { duration: 7000 });
+      toast.error(`No se pudo registrar el pago (${err.code || "error"}). Revisa tu conexión y vuelve a intentarlo: no se cobró ni se guardó nada.`, { duration: 7000 });
       await trabajo.terminar();
       setEnviando(false);
     }
