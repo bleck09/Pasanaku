@@ -107,3 +107,10 @@ html { scroll-behavior: smooth; }
 .lp-info { padding-top: 1.5rem; }
 .lp-ola { height: clamp(64px, 13vw, 140px); }
 .lp-azul { padding-bottom: clamp(56px, 11vw, 130px); }
+
+/* "Qué es un pasanaku" ahora es un botón: se le quita el aspecto de botón del navegador */
+button.lp-mas { background: transparent; border: 0; padding: 6px 4px; font-family: inherit; cursor: pointer; appearance: none; -webkit-appearance: none; }
+button.lp-mas:focus-visible { outline: 3px solid rgba(255, 255, 255, 0.7); outline-offset: 3px; border-radius: 8px; }
+.lp-mas svg { animation: lp-baja 1.6s ease-in-out infinite; }
+@keyframes lp-baja { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(3px); } }
+@media (prefers-reduced-motion: reduce) { .lp-mas svg { animation: none; } }
