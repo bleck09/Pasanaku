@@ -1,20 +1,14 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useState } from "react";
 import PropTypes from "prop-types";
-import toast from "react-hot-toast";
-import { addDoc, collection } from "firebase/firestore";
-import { ref } from "firebase/storage";
-import { ocupado, subirConProgreso } from "./ocupado";
-import { db, storage } from "../../../firebase";
 import { idSesion } from "./sesion";
-import { FiCheck, FiGift, FiClock, FiImage, FiCamera, FiFileText, FiArrowRight, FiDownload, FiLayers, FiPlay, FiAward, FiList, FiDollarSign, FiUsers, FiX, FiSearch, FiEye, FiGrid, FiCalendar, FiAlertTriangle } from "react-icons/fi";
+import { FiCheck, FiGift, FiClock, FiImage, FiFileText, FiDownload, FiLayers, FiPlay, FiAward, FiList, FiDollarSign, FiUsers, FiSearch, FiEye, FiGrid, FiCalendar, FiAlertTriangle } from "react-icons/fi";
 import Cerdito3D from "../home/Cerdito3D";
 import { describirFrecuencia, esConfirmado, estadoGrupo, estaIniciado, fechaRonda, fechaHora, formatFecha, limiteSinMulta, money, resumenPago, useColeccion } from "./pasanakuUtils";
-import { comprimirImagen, esPdf, extensionDe, kb, MAX_PDF } from "./imagenes";
-import Modal from "./Modal";
+import { esPdf } from "./imagenes";
 import VisorImagen from "./VisorImagen";
 import Comprobante from "./Comprobante";
-import PagoEnviadoModal from "./PagoEnviadoModal";
 import QRPagoModal from "./QRPagoModal";
+import PagarHoja from "./PagarHoja";
 import ResumenFinal from "./ResumenFinal";
 import { useCuentaPago } from "./useCuentaPago";
 import SelectorRonda from "./SelectorRonda";
@@ -43,198 +37,6 @@ const Barra = ({ confirmado, revision, total, grande }) => (
   </div>
 );
 Barra.propTypes = { confirmado: PropTypes.number, revision: PropTypes.number, total: PropTypes.number, grande: PropTypes.bool };
-
-// Ventana para pagar: monto, foto del comprobante (se optimiza a WebP) y vista previa
-const PagoModal = ({ grupo, ronda, yo, uid, mio, onCerrar }) => {
-  const [monto, setMonto] = useState("");
-  const [archivo, setArchivo] = useState(null);
-  const [tamano, setTamano] = useState("");
-  const [subiendo, setSubiendo] = useState(false);
-  const [paso, setPaso] = useState("datos"); // datos | confirmar | enviado
-  const fotos = usePerfiles();
-  const { cuenta } = useCuentaPago(grupo.id);
-  const [verQR, setVerQR] = useState(false);
-  const vista = useMemo(() => (archivo ? URL.createObjectURL(archivo) : null), [archivo]);
-  useEffect(() => () => { if (vista) URL.revokeObjectURL(vista); }, [vista]);
-
-  const [arrastrando, setArrastrando] = useState(false);
-
-  const recibirArchivo = async (original) => {
-    if (!original) return;
-    if (esPdf(original)) {
-      if (original.size > MAX_PDF) return toast.error(`El PDF pesa ${kb(original.size)}; el máximo es 5 MB.`);
-      setArchivo(original);
-      setTamano(kb(original.size));
-      return;
-    }
-    if (!original.type.startsWith("image/")) return toast.error("Sube una imagen o un PDF.");
-    try {
-      const liviana = await comprimirImagen(original);
-      setArchivo(liviana);
-      setTamano(`${kb(original.size)} → ${kb(liviana.size)}`);
-    } catch {
-      toast.error("No se pudo leer esa imagen. Prueba con otra.");
-    }
-  };
-
-  const elegirArchivo = (e) => {
-    const original = e.target.files[0];
-    e.target.value = "";
-    recibirArchivo(original);
-  };
-
-  const soltar = (e) => {
-    e.preventDefault();
-    setArrastrando(false);
-    recibirArchivo(e.dataTransfer.files[0]);
-  };
-
-  const montoNum = Number(monto);
-  const revisar = (e) => {
-    e.preventDefault();
-    if (!(montoNum > 0)) return toast.error("Escribe cuánto vas a pagar.");
-    if (montoNum > mio.porPagar) return toast.error(`Solo te faltan ${money(mio.porPagar)}.`);
-    if (!archivo) return toast.error("Sube la foto o el PDF de tu comprobante.");
-    setPaso("confirmar");
-  };
-
-  const enviar = async () => {
-    setSubiendo(true);
-    const trabajo = ocupado.iniciar({ titulo: "Enviando tu pago...", texto: "Estamos subiendo tu comprobante. No cierres esta ventana." });
-    let comprobanteUrl;
-    try {
-      const storageRef = ref(storage, `comprobantes/${grupo.id}/${ronda}_${uid}_${Date.now()}.${extensionDe(archivo)}`);
-      comprobanteUrl = await subirConProgreso(storageRef, archivo, trabajo.progreso);
-    } catch (err) {
-      console.error("Subir comprobante:", err);
-      toast.error(err.code === "storage/unauthorized"
-        ? "Firebase no permite subir el archivo (reglas de Storage sin publicar, o el archivo es muy pesado)."
-        : `No se pudo subir el archivo (${err.code || "error"}).`, { duration: 7000 });
-      await trabajo.terminar();
-      setSubiendo(false);
-      return;
-    }
-    try {
-      trabajo.texto("Registrando tu pago...");
-      await addDoc(collection(db, "pagos"), {
-        pasanakuId: grupo.id, ronda, participanteId: yo.id, uid,
-        monto: montoNum, estado: "revision", comprobanteUrl, comprobanteTipo: esPdf(archivo) ? "pdf" : "imagen", fecha: Date.now(),
-      });
-      await trabajo.terminar();
-      setSubiendo(false);
-      setPaso("enviado");
-    } catch (err) {
-      console.error("Registrar pago:", err);
-      toast.error(`No se pudo registrar el pago (${err.code || "error"}). Revisa las reglas de Firestore.`, { duration: 7000 });
-      await trabajo.terminar();
-      setSubiendo(false);
-    }
-  };
-
-  const quedaras = mio.pagado + mio.revision + (montoNum > 0 ? montoNum : 0);
-  const completa = montoNum > 0 && quedaras >= mio.cuotaTotal;
-
-  if (paso === "enviado") return <PagoEnviadoModal monto={montoNum} ronda={ronda} onCerrar={onCerrar} />;
-
-  if (paso === "confirmar") {
-    return (
-      <Modal titulo="¿Enviar este pago?" subtitulo="Revisa los datos antes de confirmar" ancho={460} onCerrar={subiendo ? () => {} : onCerrar}>
-        <div className="pk-confirmar-pago">
-          <div className="pk-confirmar-monto">
-            <span>Vas a enviar</span>
-            <strong>{money(montoNum)}</strong>
-            <small>Ronda {ronda} · {grupo.nombre}</small>
-          </div>
-          <div className="pk-confirmar-archivo">
-            {esPdf(archivo) ? <div className="pk-preview pk-preview-pdf"><FiFileText /><strong>PDF</strong></div> : <img className="pk-preview" src={vista} alt="Tu comprobante" />}
-            <small>{completa ? "Con este pago completas tu cuota de la ronda." : `Después de este pago te seguirán faltando ${money(Math.max(mio.cuotaTotal - quedaras, 0))}.`}</small>
-          </div>
-          <p className="pkf-nota">El administrador revisará tu comprobante y lo confirmará. Mientras tanto aparecerá como &quot;en revisión&quot;.</p>
-          <div className="pk-actions">
-            <button type="button" className="pk-btn pk-btn-ghost" onClick={() => setPaso("datos")} disabled={subiendo}>Volver</button>
-            <button type="button" className="pk-btn" onClick={enviar} disabled={subiendo}><FiCheck /> {subiendo ? "Enviando..." : "Sí, enviar pago"}</button>
-          </div>
-        </div>
-      </Modal>
-    );
-  }
-
-  return (
-    <Modal titulo="Pagar mi cuota" subtitulo={`Ronda ${ronda} · ${grupo.nombre}`} ancho={520} onCerrar={onCerrar}>
-      <form onSubmit={revisar} className="pk-pagar-form">
-        {cuenta?.qr && (
-          <button type="button" className="pk-qr-aviso" onClick={() => setVerQR(true)}>
-            <img src={cuenta.qr} alt="" />
-            <span><strong>Paga a este QR</strong><small>Toca para verlo grande y descargarlo</small></span>
-            <FiDownload />
-          </button>
-        )}
-        {mio.multa > 0 && <p className="pk-aviso-pedido"><FiAlertTriangle /> Esta cuota incluye una multa por retraso de {money(mio.multa)}, confirmada por el administrador.</p>}
-        <div className="pk-pago-resumen">
-          <Avatar nombre={yo.nombre} foto={fotos.get(yo.uid)} tam={44} />
-          <div className="pk-pago-datos">
-            <div><span>{mio.multa > 0 ? "Cuota + multa" : "Cuota"}</span><strong>{money(mio.cuotaTotal)}</strong></div>
-            <div><span>Ya aportaste</span><strong>{money(mio.pagado + mio.revision)}</strong></div>
-            <div className="falta"><span>Te falta</span><strong>{money(mio.porPagar)}</strong></div>
-          </div>
-        </div>
-
-        <div className="pk-pago-bloque">
-          <span className="pk-pago-paso"><b>1</b> ¿Cuánto vas a pagar?</span>
-          <div className="pk-monto-input">
-            <span>Bs.</span>
-            <input type="number" min="1" max={mio.porPagar} step="any" value={monto} onChange={(e) => setMonto(e.target.value)} placeholder="0" inputMode="decimal" required autoFocus />
-          </div>
-          <div className="pk-montos-rapidos">
-            <button type="button" className="pk-modo" onClick={() => setMonto(String(mio.porPagar))}>Todo ({money(mio.porPagar)})</button>
-            {mio.porPagar >= 2 && <button type="button" className="pk-modo" onClick={() => setMonto(String(Math.round((mio.porPagar / 2) * 100) / 100))}>La mitad</button>}
-          </div>
-        </div>
-
-        <div className="pk-pago-bloque">
-          <span className="pk-pago-paso"><b>2</b> Sube tu comprobante</span>
-          {archivo ? (
-            <div className="pk-preview-caja">
-              {esPdf(archivo) ? (
-                <div className="pk-preview pk-preview-pdf"><FiFileText /><strong>PDF</strong></div>
-              ) : (
-                <img className="pk-preview" src={vista} alt="Vista previa del comprobante" />
-              )}
-              <div className="pk-preview-info">
-                <strong className="pk-preview-nombre">{esPdf(archivo) ? "PDF listo" : "Imagen lista"}</strong>
-                <small>{esPdf(archivo) ? tamano : `Optimizada: ${tamano}`}</small>
-                <span className="pk-preview-acciones">
-                  <label className="pk-btn pk-btn-ghost pk-btn-mini" style={{ cursor: "pointer" }}>
-                    Cambiar<input type="file" accept="image/*,application/pdf" onChange={elegirArchivo} hidden />
-                  </label>
-                  <button type="button" className="pk-btn pk-btn-ghost pk-btn-mini" onClick={() => { setArchivo(null); setTamano(""); }}><FiX /> Quitar</button>
-                </span>
-              </div>
-            </div>
-          ) : (
-            <label className={`pk-subir ${arrastrando ? "arrastrando" : ""}`} onDragOver={(e) => { e.preventDefault(); setArrastrando(true); }} onDragLeave={() => setArrastrando(false)} onDrop={soltar}>
-              <FiCamera />
-              <strong>Toca para elegir o arrastra aquí</strong>
-              <small>Foto, captura o PDF (hasta 5 MB)</small>
-              <input type="file" accept="image/*,application/pdf" onChange={elegirArchivo} />
-            </label>
-          )}
-        </div>
-
-        <div className="pk-actions">
-          <button type="button" className="pk-btn pk-btn-ghost" onClick={onCerrar}>Cancelar</button>
-          <button className="pk-btn" type="submit"><FiArrowRight /> Revisar y enviar</button>
-        </div>
-      </form>
-      {verQR && cuenta && <QRPagoModal cuenta={cuenta} nombreGrupo={grupo.nombre} onCerrar={() => setVerQR(false)} />}
-    </Modal>
-  );
-};
-
-PagoModal.propTypes = {
-  grupo: PropTypes.object.isRequired, ronda: PropTypes.number.isRequired, yo: PropTypes.object.isRequired,
-  uid: PropTypes.string.isRequired, mio: PropTypes.object.isRequired, onCerrar: PropTypes.func.isRequired,
-};
 
 const Detalle = ({ grupo, uid, onVolver }) => {
   const { docs: participantes } = useColeccion("participantes", grupo.id);
@@ -279,6 +81,13 @@ const Detalle = ({ grupo, uid, onVolver }) => {
   const pagaron = lista.filter((p) => pago(p).completo);
   const misPagos = yo ? pagos.filter((p) => p.participanteId === yo.id).sort((a, b) => (b.fecha || 0) - (a.fecha || 0)) : [];
   const enCurso = iniciado && !finalizado;
+
+  // Pagar (la cuota, una multa o adelantar la siguiente ronda) es una hoja completa, no una ventana
+  const hojaPago = modal === "pagarMulta" && yo && rondaMulta ? { ronda: rondaMulta, mio: pago(yo, rondaMulta) }
+    : modal === "pagarSig" && yo && mioSig ? { ronda: siguienteRonda, mio: mioSig }
+    : modal === "pagar" && mio ? { ronda, mio }
+    : null;
+  if (hojaPago) return <PagarHoja grupo={grupo} ronda={hojaPago.ronda} yo={yo} uid={uid} mio={hojaPago.mio} onCerrar={() => setModal(null)} />;
 
   return (
     <div className="pk-view">
@@ -409,9 +218,6 @@ const Detalle = ({ grupo, uid, onVolver }) => {
       )}
 
       {verQRPago && cuentaPago && <QRPagoModal cuenta={cuentaPago} nombreGrupo={grupo.nombre} onCerrar={() => setVerQRPago(false)} />}
-      {modal === "pagarMulta" && yo && rondaMulta && <PagoModal grupo={grupo} ronda={rondaMulta} yo={yo} uid={uid} mio={pago(yo, rondaMulta)} onCerrar={() => setModal(null)} />}
-      {modal === "pagarSig" && yo && mioSig && <PagoModal grupo={grupo} ronda={siguienteRonda} yo={yo} uid={uid} mio={mioSig} onCerrar={() => setModal(null)} />}
-      {modal === "pagar" && mio && <PagoModal grupo={grupo} ronda={ronda} yo={yo} uid={uid} mio={mio} onCerrar={() => setModal(null)} />}
 
       {vista === "orden" && (
         <Panel titulo="Orden de cobro" subtitulo={iniciado ? "Quién cobra y cuándo. Cada pozo entregado queda aquí con su comprobante, para que todos lo vean." : "Orden de turnos del pasanaku."}>

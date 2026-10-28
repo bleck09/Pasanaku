@@ -1496,3 +1496,5 @@ button.pk-chip { font-family: inherit; }
   .pk-entrega-info strong { font-size: 0.9rem; }
   .pk-entrega-info small { font-size: 0.7rem; }
 }
+.pk-plazo-linea { display: flex; align-items: center; justify-content: center; gap: 6px; margin: 0; padding: 8px 12px; border-radius: 12px; background: rgba(74, 143, 214, 0.1); color: var(--text-main); font-size: 0.85rem; }
+.pk-plazo-linea svg { color: var(--primary-text); }
