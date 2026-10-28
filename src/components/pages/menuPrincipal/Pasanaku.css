@@ -1451,3 +1451,48 @@ button.pk-chip { font-family: inherit; }
 /* La alcancía se ajusta a la altura de la tarjeta para que no se corte */
 .pk-resumen-general-cerdo { top: 8px; bottom: 8px; transform: none; width: auto; aspect-ratio: 440 / 380; max-width: 46%; }
 @media (max-width: 640px) { .pk-resumen-general-cerdo { right: 6px; width: auto; } }
+
+/* Entregas del pozo: pasanakus primero, y dentro de cada uno sus entregas */
+.pk-entregas-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 1rem; }
+.pk-entregas-stats > div { display: grid; grid-template-columns: auto 1fr; column-gap: 12px; align-items: center; padding: 12px 16px; border-radius: 18px; background: var(--bg-card); border: 1px solid var(--border-glass); box-shadow: var(--shadow); }
+.pk-entregas-stats svg { grid-row: span 2; font-size: 1.7rem; color: var(--primary-text); }
+.pk-entregas-stats span { color: var(--text-dim); font-size: 0.8rem; }
+.pk-entregas-stats strong { font-size: 1.3rem; line-height: 1.2; }
+.pk-entregas-buscar { padding: 8px 10px; margin-bottom: 1rem; }
+.pk-entregas-buscar .pk-buscar { flex: 1 1 100%; min-width: 0; }
+.pk-entregas-volver { margin-bottom: 0.7rem; }
+.pk-entregas-cab { position: relative; overflow: hidden; padding: 16px 18px; margin-bottom: 1rem; border-radius: 20px; color: #fff; box-shadow: 0 12px 26px rgba(58, 124, 194, 0.28); }
+.pk-entregas-cab-circ { position: absolute; width: 150px; height: 150px; right: -40px; top: -60px; border-radius: 50%; background: rgba(255, 255, 255, 0.16); }
+.pk-entregas-cab h1 { position: relative; margin: 0; font-size: 1.5rem; color: #fff; }
+.pk-entregas-cab p { position: relative; margin: 2px 0 0; opacity: 0.92; font-size: 0.88rem; }
+
+.pk-entregas-grupos { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 10px; }
+.pk-entrega-grupo { display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-radius: 18px; background: var(--bg-card); border: 1px solid var(--border-glass); box-shadow: var(--shadow); color: var(--text-main); font-family: inherit; text-align: left; cursor: pointer; transition: transform 0.15s, box-shadow 0.15s; }
+.pk-entrega-grupo:hover { transform: translateY(-2px); box-shadow: 0 12px 24px rgba(44, 100, 170, 0.16); }
+.pk-entrega-grupo-info { flex: 1; min-width: 0; display: grid; }
+.pk-entrega-grupo-info strong { font-size: 1rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.pk-entrega-grupo-info small { color: var(--text-dim); font-size: 0.78rem; }
+.pk-entrega-grupo-monto { flex: none; font-weight: 800; color: var(--ok); font-size: 0.98rem; }
+.pk-entrega-grupo > svg { flex: none; color: var(--text-dim); }
+
+.pk-entregas-lista { display: grid; gap: 8px; }
+.pk-entrega-fila { display: flex; align-items: center; gap: 12px; padding: 10px 14px; border-radius: 18px; background: linear-gradient(100deg, rgba(46, 154, 107, 0.09), var(--bg-card) 55%); border: 1px solid rgba(46, 154, 107, 0.3); border-left: 4px solid var(--ok); }
+.pk-entrega-fila .pk-turno { background: var(--ok); color: #fff; flex: none; }
+.pk-entrega-info { flex: 1; min-width: 0; display: grid; gap: 1px; }
+.pk-entrega-info strong { font-size: 0.98rem; }
+.pk-entrega-info small { color: var(--text-dim); font-size: 0.76rem; display: inline-flex; align-items: center; gap: 5px; }
+.pk-entrega-der { flex: none; display: grid; justify-items: end; gap: 6px; }
+.pk-entrega-monto2 { color: var(--ok); font-size: 1.05rem; }
+
+@media (max-width: 640px) {
+  .pk-entregas-stats { gap: 8px; margin-bottom: 0.8rem; }
+  .pk-entregas-stats > div { grid-template-columns: 1fr; padding: 10px 12px; gap: 0; border-radius: 16px; }
+  .pk-entregas-stats svg { display: none; }
+  .pk-entregas-stats span { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.4px; }
+  .pk-entregas-stats strong { font-size: 1.1rem; }
+  .pk-entregas-grupos { grid-template-columns: 1fr; gap: 8px; }
+  .pk-entrega-fila { padding: 9px 11px; gap: 9px; }
+  .pk-entrega-fila .pk-avatar { width: 34px !important; height: 34px !important; }
+  .pk-entrega-info strong { font-size: 0.9rem; }
+  .pk-entrega-info small { font-size: 0.7rem; }
+}
