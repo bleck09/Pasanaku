@@ -3,7 +3,7 @@ import PropTypes from "prop-types";
 import toast from "react-hot-toast";
 import { addDoc, collection, doc, getDocs, query, updateDoc, where, writeBatch } from "firebase/firestore";
 import { db } from "../../../firebase";
-import { FiPlus, FiEdit2, FiTrash2, FiUsers, FiX, FiEye, FiPlay, FiSearch, FiClock, FiGift, FiCalendar, FiArrowLeft, FiSend } from "react-icons/fi";
+import { FiPlus, FiEdit2, FiTrash2, FiUsers, FiEye, FiPlay, FiSearch, FiClock, FiGift, FiCalendar, FiArrowLeft, FiSend } from "react-icons/fi";
 import GrupoForm from "./GrupoForm";
 import { confirmar } from "./Confirmar";
 import PanelParticipantes from "./PanelParticipantes";
@@ -117,6 +117,22 @@ const Grupos = ({ destino = null, onDestinoUsado = () => {} }) => {
 
   if (grupoDetalle) return <DetalleGrupo key={`${grupoDetalle.id}-${detalleTab}-${destinoActivo?.participanteId || ""}-${destinoActivo?.ronda || ""}`} grupo={grupoDetalle} tabInicial={detalleTab} destino={destinoActivo} onVolver={() => { setDetalleId(null); setDetalleTab(null); setDestinoActivo(null); }} />;
 
+  // Participantes y turnos: hoja aparte (la confirmación al agregar es la única ventana)
+  if (grupoPanel) {
+    return (
+      <div className="pk-view pk-hoja">
+        <button type="button" className="pk-btn pk-btn-ghost" onClick={() => setPanelId(null)} style={{ marginBottom: "1rem" }}><FiArrowLeft /> Pasanakus</button>
+        <div className="pk-header">
+          <div>
+            <h1>{grupoPanel.nombre}</h1>
+            <p>Participantes y turnos</p>
+          </div>
+        </div>
+        <PanelParticipantes grupo={grupoPanel} onSortear={() => { setDetalleTab("ruleta"); setDetalleId(grupoPanel.id); setPanelId(null); }} />
+      </div>
+    );
+  }
+
   // Crear o editar: hoja aparte, sin la lista debajo
   if (form) {
     return (
@@ -229,20 +245,6 @@ const Grupos = ({ destino = null, onDestinoUsado = () => {} }) => {
         </>
       )}
 
-      {grupoPanel && (
-        <div className="pk-modal-fondo" onClick={() => setPanelId(null)}>
-          <div className="pk-modal" onClick={(e) => e.stopPropagation()}>
-            <div className="pk-modal-cab">
-              <div>
-                <h2>{grupoPanel.nombre}</h2>
-                <p>Participantes y turnos</p>
-              </div>
-              <button className="pk-icon" title="Cerrar" onClick={() => setPanelId(null)}><FiX /></button>
-            </div>
-            <PanelParticipantes grupo={grupoPanel} onSortear={() => { setDetalleTab("ruleta"); setDetalleId(grupoPanel.id); setPanelId(null); }} />
-          </div>
-        </div>
-      )}
     </div>
   );
 };
