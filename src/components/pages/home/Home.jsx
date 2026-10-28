@@ -34,7 +34,7 @@ const Home = () => (
           <h1>Ahorra <span>juntos</span>,<br />cobra en tu turno</h1>
           <p>Organiza tu pasanaku sin papeles: turnos, aportes y entregas del pozo en un solo lugar.</p>
           <Link to="/login" className="lp-boton">Comenzar <FiArrowRight /></Link>
-          <a href="#que-es" className="lp-mas">Qué es un pasanaku <FiChevronDown /></a>
+          <button type="button" className="lp-mas" onClick={() => document.getElementById("que-es")?.scrollIntoView({ behavior: "smooth" })}>Qué es un pasanaku <FiChevronDown /></button>
         </div>
       </section>
 

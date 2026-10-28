@@ -264,10 +264,10 @@ const Detalle = ({ grupo, uid, onVolver }) => {
   const limiteMs = limiteSinMulta(grupo, ronda);
   const plazo = grupo.multa > 0 && limiteMs ? new Date(limiteMs) : fecha;
   const diasPlazo = plazo ? diasPara(plazo) : null;
-  const plazoEstado = mio?.completo ? "ok" : diasPlazo === null ? "" : diasPlazo < 0 ? "vencido" : diasPlazo <= 1 ? "urgente" : "";
 
   const pago = (p, r = ronda) => resumenPago(pagos, p.id, r, grupo, multas);
   const mio = yo ? pago(yo) : null;
+  const plazoEstado = mio?.completo ? "ok" : diasPlazo === null ? "" : diasPlazo < 0 ? "vencido" : diasPlazo <= 1 ? "urgente" : "";
   // Mis multas: por confirmar, confirmadas (pendientes o pagadas) y perdonadas. Una multa confirmada sin pagar de una ronda anterior bloquea los pagos nuevos.
   const misMultas = yo && grupo.multa > 0
     ? Array.from({ length: Math.min(ronda, Math.max(n, 1)) }, (_, i) => i + 1).map((rr) => ({ ronda: rr, r: pago(yo, rr) })).filter((x) => x.r.multa > 0 || x.r.multaPropuesta > 0 || x.r.multaPerdonada)
