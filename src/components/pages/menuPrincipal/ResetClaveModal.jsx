@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import PropTypes from "prop-types";
 import toast from "react-hot-toast";
 import { FiX, FiRefreshCw, FiKey, FiCopy, FiCheck, FiAlertTriangle } from "react-icons/fi";
-import { generarClave, resetearClave, validarClave } from "./acciones";
+import { generarClave, resetearClave, validarClaveTemporal } from "./acciones";
 import "./Pasanaku.css";
 
 // El administrador define una contraseña temporal nueva. No puede ver la actual: solo reemplazarla.
@@ -13,7 +13,7 @@ const ResetClaveModal = ({ persona, onListo, onCerrar }) => {
 
   const revisar = (e) => {
     e.preventDefault();
-    const problema = validarClave(clave);
+    const problema = validarClaveTemporal(clave);
     if (problema) return toast.error(problema);
     setPaso("confirmar");
   };

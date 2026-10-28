@@ -1508,3 +1508,21 @@ button.pk-chip { font-family: inherit; }
 .pk-part-nombre { flex: 1; min-width: 0; display: flex; align-items: center; flex-wrap: wrap; gap: 4px 10px; }
 .pk-part-nombre strong { overflow-wrap: anywhere; }
 .pk-part-fila .pk-acciones-fila { display: flex; align-items: center; gap: 2px; flex-shrink: 0; }
+
+/* Accesos de los participantes (solo administrador) */
+.pk-accesos { display: grid; gap: 12px; }
+.pk-accesos-cab { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+.pk-accesos-cab p { margin: 0; color: var(--text-dim); font-size: 0.85rem; flex: 1 1 220px; }
+.pk-accesos-lista { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 12px; }
+.pk-acceso { display: grid; gap: 10px; padding: 14px; border-radius: 18px; background: var(--bg-card); border: 1px solid var(--border-glass); box-shadow: var(--shadow); min-width: 0; }
+.pk-acceso-cab { display: flex; align-items: center; gap: 10px; }
+.pk-acceso-cab strong { flex: 1; min-width: 0; overflow-wrap: anywhere; }
+.pk-acceso-campos { display: grid; gap: 8px; }
+.pk-acceso-campo { display: flex; align-items: center; gap: 6px; padding: 8px 10px; border-radius: 12px; background: var(--surface); min-width: 0; }
+.pk-acceso-campo > span { flex: 0 0 82px; color: var(--text-dim); font-size: 0.78rem; }
+.pk-acceso-campo code { flex: 1; min-width: 0; overflow-wrap: anywhere; font-size: 0.98rem; font-weight: 700; }
+.pk-acceso-campo em { flex: 1; color: var(--text-dim); font-size: 0.8rem; font-style: normal; display: flex; align-items: center; gap: 6px; }
+.pk-acceso-acciones { display: flex; flex-wrap: wrap; gap: 6px; }
+.pk-acceso-vacio { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; color: var(--text-dim); font-size: 0.85rem; }
+.pk-acceso-nota { margin: 0; display: flex; align-items: center; gap: 6px; color: var(--text-dim); font-size: 0.82rem; }
+@media (max-width: 640px) { .pk-accesos-lista { grid-template-columns: minmax(0, 1fr); } .pk-acceso-campo > span { flex-basis: 74px; } }

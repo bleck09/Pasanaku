@@ -71,6 +71,9 @@ export const validarClave = (clave) => {
   return null;
 };
 
+// La contraseña temporal la pone el administrador: puede ser cualquiera (la persona elige la suya, con las reglas de arriba, al entrar por primera vez)
+export const validarClaveTemporal = (clave) => (clave.trim().length < 1 ? "Escribe una contraseña." : null);
+
 // Contraseña temporal aleatoria (criptográfica), sin caracteres que se confunden (0/O, 1/l/I)
 export const generarClave = (largo = 8) => {
   const letras = "abcdefghjkmnpqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ";
@@ -97,7 +100,7 @@ export const conPaso = async (coleccion, fn) => {
 export const crearCuentaJugador = async ({ nombre, usuario, clave }) => {
   const user = normalizarUsuario(usuario);
   if (user.length < 3) throw Object.assign(new Error("usuario corto"), { code: "usuario-corto" });
-  const error = validarClave(clave);
+  const error = validarClaveTemporal(clave);
   if (error) throw Object.assign(new Error(error), { code: "clave-debil", mensaje: error });
 
   const ref = doc(db, "jugadores", user);

@@ -155,7 +155,7 @@ const Jugadores = () => {
           </label>
           <label>Contraseña temporal
             <span className="pk-clave">
-              <input type="text" value={form.clave} onChange={(e) => setForm({ ...form, clave: e.target.value })} minLength={8} required />
+              <input type="text" value={form.clave} onChange={(e) => setForm({ ...form, clave: e.target.value })} required />
               <button type="button" className="pk-btn pk-btn-ghost" onClick={() => setForm({ ...form, clave: generarClave() })}><FiRefreshCw /> Generar</button>
               {form.clave && <button type="button" className="pk-icon" title="Copiar" onClick={() => { navigator.clipboard?.writeText(form.clave); toast.success("Contraseña copiada"); }}><FiCopy /></button>}
             </span>

@@ -10,6 +10,7 @@ import {
   normalizarUsuario, pendientesInicio, puedeIniciar, sugerirUsuario,
 } from "./acciones";
 import Credenciales from "./Credenciales";
+import AccesosParticipantes from "./AccesosParticipantes";
 import MostrarMas from "./MostrarMas";
 import { usePaginado } from "./usePaginado";
 import ResetClaveModal from "./ResetClaveModal";
@@ -33,6 +34,7 @@ const PanelParticipantes = ({ grupo, onSortear }) => {
   const [guardando, setGuardando] = useState(false);
   const [credenciales, setCredenciales] = useState(null);
   const [resetPara, setResetPara] = useState(null);
+  const [vista, setVista] = useState("lista"); // lista | accesos
 
   const lista = [...docs].sort((a, b) => a.turno - b.turno);
   // Todas las personas que ya existen y todavía no están en este pasanaku
@@ -252,21 +254,31 @@ const PanelParticipantes = ({ grupo, onSortear }) => {
                 <input placeholder="Nombre" value={nombre} onChange={(e) => cambiarNombre(e.target.value)} required />
                 <input placeholder="Usuario" value={usuario} onChange={(e) => { setUsuarioEditado(true); setUsuario(normalizarUsuario(e.target.value)); }} minLength={3} required autoCapitalize="none" />
                 <span className="pk-clave">
-                  <input type="text" placeholder="Contraseña temporal" value={clave} onChange={(e) => setClave(e.target.value)} minLength={8} required />
+                  <input type="text" placeholder="Contraseña temporal" value={clave} onChange={(e) => setClave(e.target.value)} required />
                   <button type="button" className="pk-btn pk-btn-ghost" onClick={() => setClave(generarClave())}><FiRefreshCw /> Generar</button>
                   {clave && <button type="button" className="pk-icon" title="Copiar" onClick={() => { navigator.clipboard?.writeText(clave); toast.success("Contraseña copiada"); }}><FiCopy /></button>}
                 </span>
                 <input placeholder="Teléfono (opcional)" value={telefono} onChange={(e) => setTelefono(e.target.value)} />
                 <button className="pk-btn" type="submit" disabled={guardando}><FiPlus /> {guardando ? "Creando..." : "Crear y agregar"}</button>
               </div>
-              <small className="pkf-nota">Solo para alguien que todavía no tiene cuenta. Entra con su usuario (único); al ingresar por primera vez tendrá que cambiar la contraseña temporal.</small>
+              <small className="pkf-nota">Solo para alguien que todavía no tiene cuenta. Puedes poner cualquier contraseña temporal; al ingresar por primera vez la persona elegirá la suya. Para ver o copiar los accesos usa la pestaña “Accesos”.</small>
             </form>
           )}
         </div>
       )}
 
+      {lista.length > 0 && (
+        <div className="pk-modos">
+          {[["lista", "Participantes"], ["accesos", "Accesos"]].map(([id, texto]) => (
+            <button type="button" key={id} className={`pk-modo ${vista === id ? "activa" : ""}`} onClick={() => setVista(id)}>{texto}</button>
+          ))}
+        </div>
+      )}
+
       {cargando ? <Cargando /> : lista.length === 0 ? (
         <p className="pk-vacio">Sin participantes todavía.</p>
+      ) : vista === "accesos" ? (
+        <AccesosParticipantes grupo={grupo} lista={lista} jugadores={jugadores} temporales={temporales} usuarioDe={usuarioDe} guardando={guardando} onCrear={crearAccesoRapido} onNueva={setResetPara} />
       ) : (
         <div className="pk-card pk-part-lista">
           <ul>
