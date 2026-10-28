@@ -35,12 +35,12 @@ export const ConfirmHost = () => {
   });
 
   if (!dialogo) return null;
-  const { titulo, mensaje, textoConfirmar = "Aceptar", textoCancelar = "Cancelar", peligro } = dialogo;
+  const { titulo, mensaje, textoConfirmar = "Aceptar", textoCancelar = "Cancelar", peligro, imagen } = dialogo;
 
   return (
     <div className="pk-modal-fondo pk-confirmar-fondo" onClick={() => cerrar(false)} role="presentation">
       <div className="pk-modal pk-confirmar" role="alertdialog" aria-modal="true" aria-labelledby="pk-confirmar-titulo" onClick={(e) => e.stopPropagation()}>
-        <div className={`pk-confirmar-icono ${peligro ? "peligro" : ""}`}>{peligro ? <FiAlertTriangle /> : <FiHelpCircle />}</div>
+        {imagen ? <div className="pk-confirmar-imagen">{imagen}</div> : <div className={`pk-confirmar-icono ${peligro ? "peligro" : ""}`}>{peligro ? <FiAlertTriangle /> : <FiHelpCircle />}</div>}
         <h3 id="pk-confirmar-titulo">{titulo}</h3>
         {mensaje && <p>{mensaje}</p>}
         <div className="pk-actions">

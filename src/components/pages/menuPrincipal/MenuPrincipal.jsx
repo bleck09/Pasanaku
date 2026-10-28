@@ -1,5 +1,5 @@
-import React, { useState, useEffect, lazy, Suspense } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect, useRef, lazy, Suspense } from 'react';
+import { useBlocker, useNavigate } from 'react-router-dom';
 import toast from "react-hot-toast";
 
 // Firebase
@@ -16,7 +16,8 @@ import Cargando from './Cargando';
 const Resumen = lazy(() => import('./Resumen'));
 import Grupos from './Grupos';
 import CambiarClave from './CambiarClave';
-import { ConfirmHost } from './Confirmar';
+import { ConfirmHost, confirmar } from './Confirmar';
+import Cerdito3D from '../home/Cerdito3D';
 import Jugadores from './Jugadores';
 import MisPasanakus from './MisPasanakus';
 import Perfil from './Perfil';
@@ -53,6 +54,9 @@ const MenuPrincipal = () => {
   }, []);
 
   const navigate = useNavigate();
+  const salidaLibre = useRef(false); // true cuando la salida es intencional (cerrar sesión o no hay sesión)
+  // Si presiona "atrás" (o intenta irse de la app) se pregunta antes: así no se cierra la sesión sin querer
+  const bloqueo = useBlocker(({ currentLocation, nextLocation }) => !salidaLibre.current && currentLocation.pathname !== nextLocation.pathname);
   const [role, setRole] = useState("");
   const [userName, setUserName] = useState("");
   const [idUsuario, setIdUsuario] = useState(""); // uid del administrador o usuario del jugador
@@ -140,7 +144,7 @@ const MenuPrincipal = () => {
             toast.error("Error de conexión con la base de datos.");
           }
         }
-        if (!jugadorOk) navigate("/login");
+        if (!jugadorOk) { salidaLibre.current = true; navigate("/login"); }
       }
       setCargando(false);
     });
@@ -149,6 +153,7 @@ const MenuPrincipal = () => {
   }, [navigate]);
 
   const handleLogout = async () => {
+    salidaLibre.current = true;
     try {
       await signOut(auth);
       localStorage.clear();
@@ -158,9 +163,30 @@ const MenuPrincipal = () => {
       window.location.hash = "#/login";
       window.location.reload();
     } catch (error) {
+      salidaLibre.current = false;
       console.error("Error al cerrar sesión:", error);
     }
   };
+
+  // Ventana en el centro con el cerdito antes de cerrar la sesión (por el botón o por "atrás")
+  const preguntarSalir = async () => {
+    const ok = await confirmar({
+      titulo: "¿Cerrar sesión?",
+      mensaje: "Saldrás de tu cuenta y tendrás que ingresar de nuevo con tu usuario y contraseña.",
+      textoConfirmar: "Sí, cerrar sesión",
+      textoCancelar: "Quedarme",
+      imagen: <Cerdito3D />,
+    });
+    return ok;
+  };
+  const salir = async () => { if (await preguntarSalir()) handleLogout(); };
+
+  useEffect(() => {
+    if (bloqueo.state !== "blocked") return;
+    preguntarSalir().then((ok) => {
+      if (ok) { salidaLibre.current = true; handleLogout(); } else bloqueo.reset();
+    });
+  }, [bloqueo.state]);
 
   const itemsPermitidos = menuItems.filter((item) => item.roles.includes(role));
   // Las opciones se agrupan por sección, en el orden en que aparecen
@@ -216,7 +242,7 @@ const MenuPrincipal = () => {
           ))}
         </nav>
 
-        <button type="button" className="sb-salir" onClick={handleLogout}><FiLogOut /> Cerrar sesión</button>
+        <button type="button" className="sb-salir" onClick={salir}><FiLogOut /> Cerrar sesión</button>
       </aside>
 
       {/* ===== Zona principal: barra superior + contenido ===== */}
@@ -248,7 +274,7 @@ const MenuPrincipal = () => {
                   <div className="perfil-fondo" onClick={() => setPerfilDesplegado(false)} />
                   <div className="perfil-menu">
                     <button type="button" className="perfil-opcion" onClick={() => { setActiveView('perfil'); setPerfilDesplegado(false); }}><FiUser /> Mi perfil</button>
-                    <button type="button" className="perfil-opcion peligro" onClick={handleLogout}><FiLogOut /> Cerrar sesión</button>
+                    <button type="button" className="perfil-opcion peligro" onClick={salir}><FiLogOut /> Cerrar sesión</button>
                   </div>
                 </>
               )}
