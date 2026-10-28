@@ -1499,3 +1499,12 @@ button.pk-chip { font-family: inherit; }
 .pk-plazo-linea { display: flex; align-items: center; justify-content: center; gap: 6px; margin: 0; padding: 8px 12px; border-radius: 12px; background: rgba(74, 143, 214, 0.1); color: var(--text-main); font-size: 0.85rem; }
 .pk-plazo-linea svg { color: var(--primary-text); }
 .pk-sin-red { position: fixed; left: 0; right: 0; bottom: 0; z-index: 3000; display: flex; align-items: center; justify-content: center; gap: 8px; padding: 10px 14px calc(10px + env(safe-area-inset-bottom)); background: #2B3A55; color: #fff; font-size: 0.85rem; text-align: center; }
+
+/* Participantes de un pasanaku: lista simple (turno, nombre y acciones) */
+.pk-part-lista { padding: 6px 14px; }
+.pk-part-lista ul { list-style: none; margin: 0; padding: 0; }
+.pk-part-fila { display: flex; align-items: center; gap: 12px; padding: 10px 0; }
+.pk-part-fila + .pk-part-fila { border-top: 1px solid var(--border-glass); }
+.pk-part-nombre { flex: 1; min-width: 0; display: flex; align-items: center; flex-wrap: wrap; gap: 4px 10px; }
+.pk-part-nombre strong { overflow-wrap: anywhere; }
+.pk-part-fila .pk-acciones-fila { display: flex; align-items: center; gap: 2px; flex-shrink: 0; }

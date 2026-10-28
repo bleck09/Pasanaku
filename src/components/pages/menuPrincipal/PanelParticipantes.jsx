@@ -55,6 +55,8 @@ const PanelParticipantes = ({ grupo, onSortear }) => {
   // Agrega a alguien que ya tiene cuenta (jugador o administrador, incluido tú) sin crear nada nuevo
   const agregarExistente = async (persona) => {
     if (grupo.cupos && lista.length >= grupo.cupos) return toast.error(`Este pasanaku es de ${grupo.cupos} participantes y ya está completo.`);
+    const ok = await confirmar({ titulo: `¿Agregar a ${persona.nombre}?`, mensaje: `Entrará a "${grupo.nombre}" como participante ${lista.length + 1}${grupo.cupos ? ` de ${grupo.cupos}` : ""}.`, textoConfirmar: "Sí, agregar" });
+    if (!ok) return;
     setGuardando(true);
     try {
       await conPaso("participantes", () => addDoc(collection(db, "participantes"), {
@@ -176,11 +178,6 @@ const PanelParticipantes = ({ grupo, onSortear }) => {
     }
   };
 
-  const renombrar = async (p, campo, valor) => {
-    if (valor === p[campo]) return;
-    try { await updateDoc(doc(db, "participantes", p.id), { [campo]: valor.trim() }); } catch { toast.error("No se pudo guardar."); }
-  };
-
   const usuarioDe = (uid) => personas.find((x) => x.id === uid)?.usuario || "";
   const esJugador = (uid) => jugadores.some((j) => j.id === uid);
 
@@ -271,47 +268,37 @@ const PanelParticipantes = ({ grupo, onSortear }) => {
       {cargando ? <Cargando /> : lista.length === 0 ? (
         <p className="pk-vacio">Sin participantes todavía.</p>
       ) : (
-        <div className="pk-card pk-tabla-wrap">
-          <table className="pk-tabla">
-            <thead><tr><th>Turno</th><th>Nombre</th><th>Usuario</th><th>Contraseña</th><th>Teléfono</th><th /></tr></thead>
-            <tbody>
-              {lista.map((p, i) => (
-                <tr key={p.id}>
-                  <td><span className="pk-turno">{p.turno}</span></td>
-                  <td><input className="pk-celda" defaultValue={p.nombre} readOnly={bloqueado} onBlur={(e) => renombrar(p, "nombre", e.target.value)} /></td>
-                  <td>
-                    {tieneAcceso(p) ? <span className="pk-chip pk-chip-ok">{usuarioDe(p.uid)}</span> : <span style={{ color: "var(--text-dim)" }}>Sin acceso</span>}
-                  </td>
-                  <td>
-                    {!tieneAcceso(p) ? (
-                      <button type="button" className="pk-chip pk-chip-rev" onClick={() => crearAccesoRapido(p)} disabled={guardando}><FiKey /> Crear acceso</button>
-                    ) : !esJugador(p.uid) ? <span style={{ color: "var(--text-dim)" }}>—</span>
-                      : temporales.some((t) => t.id === p.uid) ? (
-                        <span className="pk-clave-visible">
-                          <code>{temporales.find((t) => t.id === p.uid).clave}</code>
-                          <button type="button" className="pk-icon" title="Copiar usuario y contraseña" onClick={() => { navigator.clipboard?.writeText(`Usuario: ${usuarioDe(p.uid)}\nContraseña: ${temporales.find((t) => t.id === p.uid).clave}`); toast.success("Copiado"); }}><FiCopy /></button>
-                        </span>
-                      ) : jugadores.find((j) => j.id === p.uid)?.debeCambiarClave
-                        ? <span className="pk-chip pk-chip-rev" title="Usa la llave para asignarle una contraseña temporal">Asigna una (llave)</span>
-                        : <span className="pk-chip" title="La eligió la persona y solo ella la conoce">Propia (privada)</span>}
-                  </td>
-                  <td><input className="pk-celda" defaultValue={p.telefono} readOnly={bloqueado} onBlur={(e) => renombrar(p, "telefono", e.target.value)} /></td>
-                  <td className="pk-acciones-fila">
+        <div className="pk-card pk-part-lista">
+          <ul>
+            {lista.map((p, i) => {
+              const temporal = temporales.find((t) => t.id === p.uid);
+              return (
+                <li key={p.id} className="pk-part-fila">
+                  <span className="pk-turno">{p.turno}</span>
+                  <div className="pk-part-nombre">
+                    <strong>{p.nombre}</strong>
+                    {!tieneAcceso(p) && <button type="button" className="pk-chip pk-chip-rev" onClick={() => crearAccesoRapido(p)} disabled={guardando}><FiKey /> Crear acceso</button>}
+                  </div>
+                  <div className="pk-acciones-fila">
+                    {temporal && (
+                      <button type="button" className="pk-icon" title="Copiar usuario y contraseña" aria-label={`Copiar el acceso de ${p.nombre}`} onClick={() => { navigator.clipboard?.writeText(`Usuario: ${usuarioDe(p.uid)}
+Contraseña: ${temporal.clave}`); toast.success("Acceso copiado"); }}><FiCopy /></button>
+                    )}
                     {p.uid && esJugador(p.uid) && (
-                      <button className="pk-icon" title="Generar nueva contraseña" onClick={() => setResetPara({ uid: p.uid, nombre: p.nombre, usuario: usuarioDe(p.uid) })}><FiKey /></button>
+                      <button type="button" className="pk-icon" title="Generar nueva contraseña" aria-label={`Nueva contraseña para ${p.nombre}`} onClick={() => setResetPara({ uid: p.uid, nombre: p.nombre, usuario: usuarioDe(p.uid) })}><FiKey /></button>
                     )}
                     {!bloqueado && (
                       <>
-                        <button className="pk-icon" onClick={() => mover(i, -1)} disabled={i === 0}><FiArrowUp /></button>
-                        <button className="pk-icon" onClick={() => mover(i, 1)} disabled={i === lista.length - 1}><FiArrowDown /></button>
-                        <button className="pk-icon pk-danger" onClick={() => eliminar(p)}><FiTrash2 /></button>
+                        <button type="button" className="pk-icon" aria-label="Subir turno" onClick={() => mover(i, -1)} disabled={i === 0}><FiArrowUp /></button>
+                        <button type="button" className="pk-icon" aria-label="Bajar turno" onClick={() => mover(i, 1)} disabled={i === lista.length - 1}><FiArrowDown /></button>
+                        <button type="button" className="pk-icon pk-danger" aria-label={`Quitar a ${p.nombre}`} onClick={() => eliminar(p)}><FiTrash2 /></button>
                       </>
                     )}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+                  </div>
+                </li>
+              );
+            })}
+          </ul>
         </div>
       )}
     </>
