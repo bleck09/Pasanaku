@@ -1540,8 +1540,8 @@ button.pk-chip { font-family: inherit; }
 
 /* Perfil moderno: portada, foto grande con cámara, chips y pestañas en píldora */
 .pk-perfil-vista { max-width: 860px; }
-.pf-hero { padding: 0; overflow: hidden; }
-.pf-portada { position: relative; height: 150px; overflow: hidden; }
+.pf-hero { padding: 0; overflow: visible; }
+.pf-portada { position: relative; height: 150px; overflow: hidden; border-radius: inherit; border-bottom-left-radius: 0; border-bottom-right-radius: 0; }
 .pf-circ { position: absolute; border-radius: 50%; background: rgba(255, 255, 255, 0.16); }
 .pf-circ.c1 { width: 220px; height: 220px; top: -90px; right: -50px; }
 .pf-circ.c2 { width: 150px; height: 150px; bottom: -80px; left: 12%; background: rgba(255, 255, 255, 0.1); }
@@ -1587,3 +1587,34 @@ button.pk-chip { font-family: inherit; }
 
 /* El navegador (Edge) trae su propio ojo en los campos de contraseña: se oculta para dejar solo el de la app */
 .pk-campo-clave input::-ms-reveal, .pk-campo-clave input::-ms-clear { display: none; }
+
+/* Perfil más compacto: etiquetas a los lados de la foto y menú en la cámara */
+.pf-cuerpo { gap: 4px; padding-bottom: 16px; }
+.pf-fila { width: 100%; display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); align-items: end; gap: 10px; }
+.pf-fila .pf-avatar { margin-top: -58px; }
+.pf-lado { display: flex; min-width: 0; padding-bottom: 6px; }
+.pf-lado.izq { justify-content: flex-end; }
+.pf-lado.der { justify-content: flex-start; }
+.pf-lado .pf-chip { max-width: 100%; min-width: 0; }
+.pf-lado .pf-chip span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.pf-lado .pf-chip svg { flex: none; }
+.pf-cuerpo h1 { margin: 2px 0 0; }
+.pf-camara { padding: 0; font: inherit; }
+.pf-menu-fondo { position: fixed; inset: 0; z-index: 40; }
+.pf-menu { position: absolute; z-index: 41; top: calc(100% - 22px); left: 50%; transform: translateX(-50%); display: grid; gap: 2px; min-width: 200px; padding: 6px; border-radius: 16px; background: var(--bg-card); border: 1px solid var(--border-glass); box-shadow: 0 18px 40px rgba(24, 60, 110, 0.25); text-align: left; animation: pk-fade 0.12s ease; }
+.pf-menu button { display: flex; align-items: center; gap: 10px; padding: 11px 12px; border: 0; border-radius: 11px; background: transparent; color: var(--text-main); font-family: inherit; font-size: 0.92rem; font-weight: 600; cursor: pointer; text-align: left; }
+.pf-menu button:hover { background: var(--surface); }
+.pf-menu button.peligro { color: var(--danger); }
+@media (max-width: 640px) {
+  .pf-fila { gap: 6px; }
+  .pf-fila .pf-avatar { margin-top: -50px; }
+  .pf-chip { padding: 4px 9px; font-size: 0.76rem; gap: 4px; }
+}
+.pf-corto { display: none; }
+@media (max-width: 640px) {
+  .pf-largo { display: none; }
+  .pf-corto { display: inline; }
+  .pf-fila .pf-avatar { margin-top: -46px; }
+  .pf-fila .pf-avatar .pk-avatar-grande { width: 92px !important; height: 92px !important; }
+  .pf-camara { width: 32px; height: 32px; }
+}

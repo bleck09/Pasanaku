@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import PropTypes from "prop-types";
 import toast from "react-hot-toast";
 import { EmailAuthProvider, reauthenticateWithCredential, updatePassword } from "firebase/auth";
@@ -6,13 +6,14 @@ import { deleteDoc, doc, getDoc, setDoc, updateDoc, writeBatch } from "firebase/
 import { ref } from "firebase/storage";
 import { ocupado, subirConProgreso } from "./ocupado";
 import { auth, db, storage } from "../../../firebase";
-import { FiAtSign, FiCamera, FiGrid, FiLock, FiShield, FiTrash2, FiUser } from "react-icons/fi";
+import { FiAtSign, FiCamera, FiGrid, FiImage, FiLock, FiShield, FiTrash2, FiUser } from "react-icons/fi";
 import Avatar from "./Avatar";
 import { validarClave } from "./acciones";
 import { hashClave, ITERACIONES } from "./claves";
 import { probarClave } from "./accesoJugador";
 import { extensionDe } from "./imagenes";
 import EditorFoto from "./EditorFoto";
+import { confirmar } from "./Confirmar";
 import { portadaDe } from "./portadas";
 import QRPerfil from "./QRPerfil";
 import CampoClave from "./CampoClave";
@@ -22,6 +23,9 @@ import "./Pasanaku.css";
 const Perfil = ({ id, nombre, usuario, rol, foto, onFoto }) => {
   const [seccion, setSeccion] = useState("info"); // info | clave | qr
   const [porEditar, setPorEditar] = useState(null); // imagen elegida que se está ajustando
+  const [menuFoto, setMenuFoto] = useState(false); // opciones de la cámara
+  const galeria = useRef(null);
+  const camara = useRef(null);
   const [subiendo, setSubiendo] = useState(false);
   const [actual, setActual] = useState("");
   const [nueva, setNueva] = useState("");
@@ -62,6 +66,11 @@ const Perfil = ({ id, nombre, usuario, rol, foto, onFoto }) => {
       await trabajo.terminar();
       setSubiendo(false);
     }
+  };
+
+  const pedirQuitar = async () => {
+    setMenuFoto(false);
+    if (await confirmar({ titulo: "¿Quitar tu foto?", mensaje: "Se mostrará un círculo con tus iniciales. Puedes poner otra cuando quieras.", textoConfirmar: "Sí, quitar", peligro: true })) quitarFoto();
   };
 
   const quitarFoto = async () => {
@@ -126,25 +135,33 @@ const Perfil = ({ id, nombre, usuario, rol, foto, onFoto }) => {
           <span className="pf-circ c1" /><span className="pf-circ c2" />
         </div>
         <div className="pf-cuerpo">
-          <div className="pf-avatar">
-            <Avatar nombre={nombre} foto={foto} tam={116} className="pk-avatar-grande" />
-            <label className={`pf-camara ${subiendo ? "off" : ""}`} title={foto ? "Cambiar foto" : "Poner mi foto"}>
-              <FiCamera />
-              <input type="file" accept="image/*" onChange={elegirFoto} disabled={subiendo} />
-            </label>
+          <div className="pf-fila">
+            <div className="pf-lado izq">
+              {usuario && <span className="pf-chip" title={usuario}><FiAtSign /> <span>{usuario}</span></span>}
+            </div>
+            <div className="pf-avatar">
+              <Avatar nombre={nombre} foto={foto} tam={116} className="pk-avatar-grande" />
+              <button type="button" className={`pf-camara ${subiendo ? "off" : ""}`} title="Foto de perfil" aria-label="Opciones de la foto de perfil" aria-expanded={menuFoto} onClick={() => setMenuFoto(!menuFoto)} disabled={subiendo}>
+                <FiCamera />
+              </button>
+              {menuFoto && (
+                <>
+                  <div className="pf-menu-fondo" onClick={() => setMenuFoto(false)} />
+                  <div className="pf-menu" role="menu">
+                    <button type="button" role="menuitem" onClick={() => { setMenuFoto(false); camara.current?.click(); }}><FiCamera /> Tomar foto</button>
+                    <button type="button" role="menuitem" onClick={() => { setMenuFoto(false); galeria.current?.click(); }}><FiImage /> {foto ? "Cargar otra foto" : "Cargar foto"}</button>
+                    {foto && <button type="button" role="menuitem" className="peligro" onClick={pedirQuitar}><FiTrash2 /> Quitar foto</button>}
+                  </div>
+                </>
+              )}
+              <input ref={galeria} type="file" accept="image/*" onChange={elegirFoto} hidden />
+              <input ref={camara} type="file" accept="image/*" capture="user" onChange={elegirFoto} hidden />
+            </div>
+            <div className="pf-lado der">
+              <span className={`pf-chip ${esAdmin ? "admin" : "jugador"}`}>{esAdmin ? <FiShield /> : <FiUser />} {esAdmin ? <span><span className="pf-largo">Administrador</span><span className="pf-corto">Admin</span></span> : <span>Jugador</span>}</span>
+            </div>
           </div>
           <h1>{nombre}</h1>
-          <div className="pf-chips">
-            {usuario && <span className="pf-chip"><FiAtSign /> {usuario}</span>}
-            <span className={`pf-chip ${esAdmin ? "admin" : "jugador"}`}>{esAdmin ? <FiShield /> : <FiUser />} {esAdmin ? "Administrador" : "Jugador"}</span>
-          </div>
-          <div className="pf-acciones">
-            <label className={`pk-btn ${subiendo ? "pk-btn-off" : ""}`}>
-              <FiCamera /> {subiendo ? "Subiendo..." : foto ? "Cambiar foto" : "Poner mi foto"}
-              <input type="file" accept="image/*" onChange={elegirFoto} disabled={subiendo} style={{ display: "none" }} />
-            </label>
-            {foto && <button type="button" className="pk-btn pk-btn-ghost" onClick={quitarFoto} disabled={subiendo}><FiTrash2 /> Quitar</button>}
-          </div>
         </div>
       </div>
 
