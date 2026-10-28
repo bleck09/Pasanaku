@@ -93,8 +93,8 @@ const DetalleGrupo = ({ grupo, onVolver, tabInicial = null, destino = null }) =>
         ]}
         pestanas={[
           { id: "resumen", texto: "Resumen", icono: <FiHome /> },
-          ...(iniciado ? [{ id: "pagos", texto: "Pagos y comprobantes", icono: <FiDollarSign /> }] : []),
-          ...(!iniciado && lista.length >= 2 ? [{ id: "ruleta", texto: "Orden de cobro", icono: <FiAperture /> }] : []),
+          ...(iniciado ? [{ id: "pagos", texto: "Pagos", icono: <FiDollarSign /> }] : []),
+          ...(!iniciado && lista.length >= 2 ? [{ id: "ruleta", texto: "Turnos", icono: <FiAperture /> }] : []),
           { id: "calendario", texto: "Calendario", icono: <FiCalendar /> },
           ...(iniciado ? [{ id: "matriz", texto: "Quién pagó", icono: <FiGrid /> }] : []),
           { id: "qr", texto: "QR de pago", icono: <FiCreditCard /> },

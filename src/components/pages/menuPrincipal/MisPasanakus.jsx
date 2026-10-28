@@ -6,7 +6,7 @@ import { ref } from "firebase/storage";
 import { ocupado, subirConProgreso } from "./ocupado";
 import { db, storage } from "../../../firebase";
 import { idSesion } from "./sesion";
-import { FiCheck, FiGift, FiClock, FiImage, FiCamera, FiFileText, FiArrowRight, FiDownload, FiChevronRight, FiLayers, FiPlay, FiAward, FiList, FiDollarSign, FiUsers, FiX, FiSearch, FiEye, FiGrid, FiCalendar, FiAlertTriangle } from "react-icons/fi";
+import { FiCheck, FiGift, FiClock, FiImage, FiCamera, FiFileText, FiArrowRight, FiDownload, FiLayers, FiPlay, FiAward, FiList, FiDollarSign, FiUsers, FiX, FiSearch, FiEye, FiGrid, FiCalendar, FiAlertTriangle } from "react-icons/fi";
 import { MdSavings } from "react-icons/md";
 import { describirFrecuencia, esConfirmado, estadoGrupo, estaIniciado, fechaRonda, fechaHora, formatFecha, limiteSinMulta, money, resumenPago, useColeccion } from "./pasanakuUtils";
 import { comprimirImagen, esPdf, extensionDe, kb, MAX_PDF } from "./imagenes";
@@ -296,10 +296,10 @@ const Detalle = ({ grupo, uid, onVolver }) => {
         ]}
         pestanas={[
           { id: "resumen", texto: "Resumen", icono: <FiDollarSign /> },
-          ...(iniciado ? [{ id: "pagos", texto: "Pagos de todos", icono: <FiImage /> }] : []),
+          { id: "orden", texto: "Turnos", icono: <FiUsers /> },
+          ...(iniciado ? [{ id: "pagos", texto: "Pagos", icono: <FiImage /> }] : []),
           ...(iniciado && yo && grupo.multa > 0 ? [{ id: "multas", texto: misMultas.length > 0 ? `Multas (${misMultas.length})` : "Multas", icono: <FiAlertTriangle /> }] : []),
-          { id: "orden", texto: "Orden de cobro", icono: <FiUsers /> },
-          ...(yo && iniciado ? [{ id: "historial", texto: "Mi historial", icono: <FiList /> }] : []),
+          ...(yo && iniciado ? [{ id: "historial", texto: "Historial", icono: <FiList /> }] : []),
         ]}
         activa={vista}
         onTab={setVista}
@@ -644,34 +644,6 @@ const MisPasanakus = () => {
           </div>
 
           <h3 className="pk-lista-titulo">Mis pasanakus ({visibles.length})</h3>
-          {visibles.length > 0 && (
-            <div className="pk-lista-movil">
-              {pagina.visibles.map((g) => {
-                const cobro = misCobros.find((c) => c.g.id === g.id);
-                return (
-                  <button key={g.id} type="button" className="pk-fila-movil pk-gtarjeta" style={{ background: portadaDe(g.nombre) }} onClick={() => setAbiertoId(g.id)}>
-                    <span className="pk-gt-cab">
-                      <span className="pk-gt-estado">{etapa(g) === "curso" ? <FiPlay /> : etapa(g) === "armando" ? <FiClock /> : <FiAward />} {etiquetaEstado(g)}</span>
-                      {estaIniciado(g) && g.cupos ? <span className="pk-gt-ronda">Ronda {Math.min(g.rondaActual, g.cupos)} de {g.cupos}</span> : null}
-                    </span>
-                    <strong className="pk-gt-nombre">{g.nombre}</strong>
-                    <span className="pk-gt-sub">{money(g.cuota)} · {describirFrecuencia(g)}</span>
-                    {g.multa > 0 && <span className="pk-gt-multa"><FiAlertTriangle /> Multa {money(g.multa)}{g.diasGracia > 0 ? ` · ${g.diasGracia} día${g.diasGracia === 1 ? "" : "s"} de gracia` : ""}</span>}
-                    {cobro ? (
-                      <span className="pk-gt-cobro">
-                        <span><FiGift /> {cobro.ahora ? "Te toca cobrar ahora" : cobro.yaCobre ? `Cobraste el ${formatFecha(cobro.fecha)}` : `Cobras el ${formatFecha(cobro.fecha)}`}</span>
-                        {!cobro.yaCobre && !cobro.ahora && cobro.dias !== null && cobro.dias >= 0 && <span className="pk-proximo-dias">{cobro.dias === 0 ? "Es hoy" : `Faltan ${cobro.dias} día${cobro.dias === 1 ? "" : "s"}`}</span>}
-                      </span>
-                    ) : <span className="pk-gt-cobro"><span>{etapa(g) === "armando" ? "Esperando que el administrador inicie" : "Pasanaku terminado"}</span></span>}
-                    {cobro && !cobro.ahora && !cobro.yaCobre && cobro.recibe && <span className="pk-gt-ahora">Ahora cobra: <b>{cobro.recibe.nombre}</b> · tu turno es el {cobro.yo.turno}</span>}
-                    {estaIniciado(g) && g.cupos ? <span className="pk-fila-avance"><span style={{ width: `${Math.min(100, ((g.estado === "finalizado" ? g.cupos : g.rondaActual - 1) / g.cupos) * 100)}%` }} /></span> : null}
-                    <FiChevronRight className="pk-proximo-flecha" />
-                  </button>
-                );
-              })}
-            </div>
-          )}
-
           {visibles.length === 0 ? <p className="pk-vacio">Ningún pasanaku coincide con la búsqueda.</p> : modo === "tabla" ? (
             <div className="pk-card pk-tabla-wrap pk-vista-escritorio">
               <table className="pk-tabla">
@@ -691,12 +663,13 @@ const MisPasanakus = () => {
               </table>
             </div>
           ) : (
-            <div className="pk-galeria pk-vista-escritorio">
+            <div className="pk-galeria">
               {pagina.visibles.map((g) => {
                 const miembros = todos.filter((m) => m.pasanakuId === g.id).sort((x, y) => x.turno - y.turno);
                 const n = g.cupos || miembros.length;
                 const recibe = etapa(g) === "curso" ? miembros.find((m) => m.turno === g.rondaActual) : null;
                 const fecha = etapa(g) === "curso" ? fechaRonda(g, g.rondaActual) : null;
+                const cobro = misCobros.find((c) => c.g.id === g.id);
                 return (
                   <article key={g.id} className="pk-gcard">
                     <div className="pk-gcard-portada" style={{ background: portadaDe(g.nombre) }}>
@@ -713,8 +686,16 @@ const MisPasanakus = () => {
                         <div><small>Pozo</small><strong>{money(g.cuota * n)}</strong></div>
                         <div><small>Ronda</small><strong>{rondaDe(g)}</strong></div>
                       </div>
-                      <p className="pk-gcard-linea"><FiGift /> {recibe ? <>Cobra ahora: <strong>{recibe.nombre}</strong></> : etapa(g) === "armando" ? "Esperando que el administrador inicie" : "Pasanaku terminado"}</p>
-                      {fecha && <p className="pk-gcard-linea"><FiCalendar /> Próxima fecha: <strong>{formatFecha(fecha)}</strong></p>}
+                      <p className="pk-gcard-linea"><FiUsers /> Participantes: <strong>{miembros.length} de {n}</strong></p>
+                      <p className="pk-gcard-linea"><FiGift /> {recibe ? <>Cobra ahora: <strong>{recibe.nombre}</strong>{fecha ? <> · <FiCalendar /> {formatFecha(fecha)}</> : null}</> : etapa(g) === "armando" ? "Esperando que el administrador inicie" : "Pasanaku terminado"}</p>
+                      {cobro && (
+                        <p className={`pk-gcard-linea pk-gcard-mio ${cobro.ahora ? "ahora" : cobro.yaCobre ? "listo" : ""}`}>
+                          <FiClock /> {cobro.ahora ? "Te toca cobrar ahora" : cobro.yaCobre ? `Ya cobraste el ${formatFecha(cobro.fecha)}` : <>Tú cobras el <strong>{formatFecha(cobro.fecha)}</strong></>}
+                          {!cobro.yaCobre && !cobro.ahora && cobro.dias !== null && cobro.dias >= 0 && <span className="pk-gcard-dias">{cobro.dias === 0 ? "Es hoy" : `Faltan ${cobro.dias} día${cobro.dias === 1 ? "" : "s"}`}</span>}
+                        </p>
+                      )}
+                      {g.multa > 0 && <p className="pk-gcard-linea pk-gcard-multa"><FiAlertTriangle /> Multa {money(g.multa)}{g.diasGracia > 0 ? ` · ${g.diasGracia} día${g.diasGracia === 1 ? "" : "s"} de gracia` : ""}</p>}
+                      {estaIniciado(g) && g.cupos ? <span className="pk-fila-avance"><span style={{ width: `${Math.min(100, ((g.estado === "finalizado" ? g.cupos : g.rondaActual - 1) / g.cupos) * 100)}%` }} /></span> : null}
                       <div className="pk-gcard-pie">
                         <div className="pk-portada-pila pk-pila-chica">
                           {miembros.slice(0, 5).map((m) => <Avatar key={m.id} nombre={m.nombre} foto={fotos.get(m.uid)} tam={28} className="pk-pila-av" />)}
