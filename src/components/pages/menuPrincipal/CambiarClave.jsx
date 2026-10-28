@@ -4,19 +4,23 @@ import toast from "react-hot-toast";
 import { signOut, updatePassword } from "firebase/auth";
 import { deleteDoc, doc, getDoc, updateDoc, writeBatch } from "firebase/firestore";
 import { auth, db } from "../../../firebase";
-import { FiLock } from "react-icons/fi";
+import { FiCheck } from "react-icons/fi";
+import Cerdito3D from "../home/Cerdito3D";
 import { validarClave } from "./acciones";
 import { hashClave, ITERACIONES } from "./claves";
 import { CLAVE_PRUEBA } from "./accesoJugador";
 import CampoClave from "./CampoClave";
 import { CLAVE_SESION } from "./sesion";
 import "./Pasanaku.css";
+import "./CambiarClave.css";
 
-// Pantalla obligatoria la primera vez que entra alguien con contraseña temporal
-const CambiarClave = ({ onListo, onSalir }) => {
+// Bienvenida con una contraseña temporal: se invita a crear la propia, pero se puede omitir.
+// Vuelve a aparecer en el próximo ingreso mientras no la cambie (desde aquí o desde su perfil).
+const CambiarClave = ({ nombre, onListo, onOmitir, onSalir }) => {
   const [clave, setClave] = useState("");
   const [repetir, setRepetir] = useState("");
   const [guardando, setGuardando] = useState(false);
+  const primerNombre = (nombre || "").trim().split(" ")[0];
 
   const guardar = async (e) => {
     e.preventDefault();
@@ -63,23 +67,27 @@ const CambiarClave = ({ onListo, onSalir }) => {
   };
 
   return (
-    <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", padding: "1rem", fontFamily: "'Montserrat', sans-serif" }}>
-      <form className="pk-card pk-form" onSubmit={guardar} style={{ width: "100%" }}>
-        <h3><FiLock /> Crea tu contraseña</h3>
-        <p style={{ color: "var(--text-dim)", fontSize: "0.9rem" }}>
-          Entraste con una contraseña temporal. Elige la contraseña que quieras (mínimo 8 caracteres) para continuar.
-        </p>
-        <CampoClave etiqueta="Nueva contraseña" value={clave} onChange={(e) => setClave(e.target.value)} autoComplete="new-password" autoFocus />
-        <CampoClave etiqueta="Repite la contraseña" value={repetir} onChange={(e) => setRepetir(e.target.value)} autoComplete="new-password" />
-        <div className="pk-actions">
-          <button type="button" className="pk-btn pk-btn-ghost" onClick={onSalir}>Salir</button>
-          <button type="submit" className="pk-btn" disabled={guardando}>{guardando ? "Guardando..." : "Guardar"}</button>
-        </div>
-      </form>
+    <div className="cc">
+      <span className="cc-deco d1" />
+      <span className="cc-deco d2" />
+      <div className="cc-tarjeta">
+        <div className="cc-cerdo"><Cerdito3D /></div>
+        <h1>¡Bienvenido{primerNombre ? <>, <span>{primerNombre}</span></> : ""}!</h1>
+        <p className="cc-texto">Entraste con una contraseña temporal. Por tu seguridad, crea una propia que solo tú conozcas (mínimo 8 caracteres).</p>
+
+        <form className="cc-form" onSubmit={guardar}>
+          <CampoClave etiqueta="Nueva contraseña" value={clave} onChange={(e) => setClave(e.target.value)} autoComplete="new-password" autoFocus />
+          <CampoClave etiqueta="Repite la contraseña" value={repetir} onChange={(e) => setRepetir(e.target.value)} autoComplete="new-password" />
+          <button type="submit" className="pk-btn cc-guardar" disabled={guardando}><FiCheck /> {guardando ? "Guardando..." : "Guardar mi contraseña"}</button>
+        </form>
+
+        <button type="button" className="cc-omitir" onClick={onOmitir} disabled={guardando}>Omitir por ahora</button>
+        <p className="cc-nota">Si la omites, te lo recordaremos la próxima vez que entres. También puedes cambiarla cuando quieras en &quot;Mi perfil&quot;.</p>
+      </div>
     </div>
   );
 };
 
-CambiarClave.propTypes = { onListo: PropTypes.func.isRequired, onSalir: PropTypes.func.isRequired };
+CambiarClave.propTypes = { nombre: PropTypes.string, onListo: PropTypes.func.isRequired, onOmitir: PropTypes.func.isRequired, onSalir: PropTypes.func.isRequired };
 
 export default CambiarClave;

@@ -28,7 +28,7 @@ import OcupadoHost from './OcupadoHost';
 import Avatar from './Avatar';
 import Splash from './Splash';
 import AvisoSinConexion from './AvisoSinConexion';
-import { CLAVE_SESION } from './sesion';
+import { CLAVE_SESION, OMITIR_CLAVE } from './sesion';
 
 import './MenuPrincipal.css';
 import './Responsive.css';
@@ -61,6 +61,8 @@ const MenuPrincipal = () => {
   const [activeView, setActiveView] = useState("");
   const [cargando, setCargando] = useState(true);
   const [debeCambiarClave, setDebeCambiarClave] = useState(false);
+  const [claveOmitida, setClaveOmitida] = useState(() => localStorage.getItem(OMITIR_CLAVE) === '1');
+  const omitirClave = () => { localStorage.setItem(OMITIR_CLAVE, '1'); setClaveOmitida(true); };
   const [destino, setDestino] = useState(null); // { grupoId, participanteId, ronda }: pago a revisar al que se salta desde la campana
   const irARevisar = (d) => { setDestino(d); setActiveView('grupos'); setMenuAbierto(false); };
 
@@ -173,7 +175,7 @@ const MenuPrincipal = () => {
 
   if (cargando) return <Splash />;
 
-  if (debeCambiarClave) return <CambiarClave onListo={() => setDebeCambiarClave(false)} onSalir={handleLogout} />;
+  if (debeCambiarClave && !claveOmitida) return <CambiarClave nombre={userName} onListo={() => setDebeCambiarClave(false)} onOmitir={omitirClave} onSalir={handleLogout} />;
 
   return (
     <div className="app-shell">

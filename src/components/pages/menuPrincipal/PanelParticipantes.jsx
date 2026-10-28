@@ -3,7 +3,7 @@ import PropTypes from "prop-types";
 import toast from "react-hot-toast";
 import { addDoc, collection, deleteDoc, doc, updateDoc, writeBatch } from "firebase/firestore";
 import { auth, db } from "../../../firebase";
-import { FiPlus, FiTrash2, FiAperture, FiArrowUp, FiArrowDown, FiPlay, FiRefreshCw, FiCopy, FiKey, FiSearch } from "react-icons/fi";
+import { FiPlus, FiTrash2, FiAperture, FiArrowUp, FiArrowDown, FiPlay, FiRefreshCw, FiCopy, FiKey, FiSearch, FiX } from "react-icons/fi";
 import { estaIniciado, useColeccion } from "./pasanakuUtils";
 import {
   conPaso, crearCuentaJugador, generarClave, iniciarPasanaku, mensajeErrorCuenta,
@@ -25,6 +25,7 @@ const PanelParticipantes = ({ grupo, onSortear }) => {
   const { docs: cuentas } = useColeccion("usuario"); // cuentas con correo (administrador)
   const { docs: temporales } = useColeccion("temporales"); // contraseñas temporales aún no cambiadas (solo las ve el administrador)
   const [modo, setModo] = useState("existente"); // existente | nueva
+  const [abierto, setAbierto] = useState(false); // panel para agregar participantes
   const [buscarPersona, setBuscarPersona] = useState("");
   const [nombre, setNombre] = useState("");
   const [usuario, setUsuario] = useState("");
@@ -50,6 +51,7 @@ const PanelParticipantes = ({ grupo, onSortear }) => {
   const paginaPersonas = usePaginado(disponibles, buscarPersona, 12);
   const bloqueado = estaIniciado(grupo); // ya empezó: no se agrega, quita ni reordena
   const faltan = grupo.cupos ? grupo.cupos - lista.length : 0;
+  const completo = Boolean(grupo.cupos) && lista.length >= grupo.cupos;
   const listoParaIniciar = !bloqueado && puedeIniciar(grupo, lista.length);
   const tieneAcceso = (p) => Boolean(p.uid) && personas.some((x) => x.id === p.uid);
   const sinCuenta = lista.filter((p) => !tieneAcceso(p)).length;
@@ -214,12 +216,15 @@ const PanelParticipantes = ({ grupo, onSortear }) => {
         </div>
       )}
 
-      {!bloqueado && (
+      {!bloqueado && !completo && !abierto && (
+        <button type="button" className="pk-agregar-boton" onClick={() => setAbierto(true)}><FiPlus /> Agregar participante</button>
+      )}
+
+      {!bloqueado && !completo && abierto && (
         <div className="pk-card pk-agregar">
-          <div className="pk-modos">
-            {[["existente", "Agregar a alguien que ya tiene cuenta"], ["nueva", "Crear persona nueva"]].map(([id, texto]) => (
-              <button type="button" key={id} className={`pk-modo ${modo === id ? "activa" : ""}`} onClick={() => setModo(id)}>{texto}</button>
-            ))}
+          <div className="pk-agregar-cab">
+            <strong>{modo === "existente" ? "Agregar participante" : "Crear persona nueva"}</strong>
+            <button type="button" className="pk-icon" title="Cerrar" aria-label="Cerrar" onClick={() => { setAbierto(false); setModo("existente"); }}><FiX /></button>
           </div>
 
           {modo === "existente" ? (
@@ -264,6 +269,10 @@ const PanelParticipantes = ({ grupo, onSortear }) => {
               <small className="pkf-nota">Solo para alguien que todavía no tiene cuenta. Puedes poner cualquier contraseña temporal; al ingresar por primera vez la persona elegirá la suya. Para ver o copiar los accesos usa la pestaña “Accesos”.</small>
             </form>
           )}
+
+          <button type="button" className="pk-enlace" onClick={() => setModo(modo === "existente" ? "nueva" : "existente")}>
+            {modo === "existente" ? "¿No tiene cuenta? Crear persona nueva" : "← Elegir a alguien que ya tiene cuenta"}
+          </button>
         </div>
       )}
 

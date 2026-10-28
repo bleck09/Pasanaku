@@ -1,0 +1,17 @@
+/* Pantalla de bienvenida para crear la contraseña propia: misma línea visual que el inicio y el ingreso */
+.cc { position: relative; min-height: 100dvh; display: flex; align-items: center; justify-content: center; padding: 20px 16px; background: linear-gradient(180deg, #EAF2FC 0%, #F2F6FC 45%, #FFFFFF 100%); color: var(--text-main); font-family: 'Montserrat', sans-serif; overflow: hidden; }
+.cc-deco { position: absolute; border-radius: 50%; pointer-events: none; background: radial-gradient(circle at 35% 30%, #FFFFFF, #D6E6FA 60%, #BFD8F5); box-shadow: 0 30px 60px rgba(74, 143, 214, 0.18); }
+.cc-deco.d1 { width: 300px; height: 300px; top: -120px; left: -100px; opacity: 0.9; }
+.cc-deco.d2 { width: 260px; height: 260px; bottom: -110px; right: -90px; opacity: 0.85; }
+
+.cc-tarjeta { position: relative; z-index: 1; width: 100%; max-width: 430px; display: grid; gap: 12px; padding: 22px 20px 20px; border-radius: 26px; background: rgba(255, 255, 255, 0.92); border: 1px solid var(--border-glass); box-shadow: 0 24px 60px rgba(47, 109, 181, 0.18); }
+.cc-cerdo { width: min(150px, 42vw); aspect-ratio: 440 / 380; margin: -4px auto 0; }
+.cc-cerdo svg { width: 100%; height: 100%; overflow: visible; filter: drop-shadow(0 10px 12px rgba(24, 60, 110, 0.2)); }
+.cc-tarjeta h1 { margin: 0; text-align: center; font-size: 1.35rem; line-height: 1.25; overflow-wrap: anywhere; }
+.cc-tarjeta h1 span { background: linear-gradient(135deg, #4A8FD6, #2F6DB5); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.cc-texto { margin: 0; text-align: center; color: var(--text-dim); font-size: 0.9rem; line-height: 1.5; }
+.cc-form { display: grid; gap: 12px; }
+.cc-form label { display: grid; gap: 6px; color: var(--text-dim); font-size: 0.85rem; }
+.cc-guardar { width: 100%; justify-content: center; padding: 13px 18px; }
+.cc-omitir { justify-self: center; background: none; border: 0; padding: 6px 10px; color: var(--primary-text); font-family: inherit; font-weight: 600; font-size: 0.9rem; cursor: pointer; text-decoration: underline; text-underline-offset: 3px; }
+.cc-nota { margin: 0; text-align: center; color: var(--text-dim); font-size: 0.76rem; line-height: 1.4; }

@@ -11,7 +11,7 @@ import Cerdito3D from "../home/Cerdito3D";
 import { normalizarUsuario } from "../menuPrincipal/acciones";
 import { hashClave } from "../menuPrincipal/claves";
 import { CLAVE_PRUEBA, probarClave } from "../menuPrincipal/accesoJugador";
-import { CLAVE_SESION } from "../menuPrincipal/sesion";
+import { CLAVE_SESION, OMITIR_CLAVE } from "../menuPrincipal/sesion";
 import "./Login.css";
 
 const Login = () => {
@@ -47,6 +47,7 @@ const Login = () => {
 
   // Correo → Firebase Authentication (administrador). Usuario → jugador con contraseña propia (colección "jugadores").
   const iniciarSesion = async (entrada, password) => {
+    localStorage.removeItem(OMITIR_CLAVE);
     if (entrada.includes("@")) {
       localStorage.removeItem(CLAVE_SESION);
       const { user } = await signInWithEmailAndPassword(auth, entrada.toLowerCase(), password);

@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import PropTypes from "prop-types";
 import toast from "react-hot-toast";
 import { EmailAuthProvider, reauthenticateWithCredential, updatePassword } from "firebase/auth";
-import { doc, getDoc, setDoc, updateDoc } from "firebase/firestore";
+import { deleteDoc, doc, getDoc, setDoc, updateDoc, writeBatch } from "firebase/firestore";
 import { ref } from "firebase/storage";
 import { ocupado, subirConProgreso } from "./ocupado";
 import { auth, db, storage } from "../../../firebase";
@@ -83,6 +83,7 @@ const Perfil = ({ id, nombre, usuario, rol, foto, onFoto }) => {
       if (esAdmin) {
         await reauthenticateWithCredential(auth.currentUser, EmailAuthProvider.credential(auth.currentUser.email, actual));
         await updatePassword(auth.currentUser, nueva);
+        await updateDoc(doc(db, "usuario", auth.currentUser.uid), { debeCambiarClave: false }).catch(() => {});
       } else {
         const datos = (await getDoc(doc(db, "jugadores", id))).data();
         const prueba = datos ? await probarClave(id, actual, datos) : null;
@@ -92,7 +93,11 @@ const Perfil = ({ id, nombre, usuario, rol, foto, onFoto }) => {
         }
         // se conserva la misma sal; las reglas exigen la prueba de la contraseña actual para aceptar el cambio
         const { hash } = await hashClave(nueva, datos.sal, datos.iter || ITERACIONES);
-        await updateDoc(doc(db, "claves", id), { hash, previa: prueba });
+        const lote = writeBatch(db);
+        lote.update(doc(db, "claves", id), { hash, previa: prueba });
+        if (datos.debeCambiarClave) lote.update(doc(db, "jugadores", id), { debeCambiarClave: false });
+        await lote.commit();
+        if (datos.debeCambiarClave) await deleteDoc(doc(db, "temporales", id)).catch(() => {});
       }
       toast.success("Contraseña actualizada");
       setActual(""); setNueva(""); setRepetir("");
