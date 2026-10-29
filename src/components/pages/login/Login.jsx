@@ -103,7 +103,7 @@ const Login = () => {
       }
 
       // 3. Entrar al sistema (sin aviso: la pantalla de carga ya indica que se está iniciando)
-      navigate("/menuPrincipal");
+      navigate("/menuPrincipal", { replace: true });
 
     } catch (error) {
       const incorrecto = ["auth/invalid-credential", "auth/user-not-found", "auth/wrong-password"].includes(error.code);

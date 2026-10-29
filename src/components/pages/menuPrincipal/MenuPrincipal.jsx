@@ -148,13 +148,33 @@ const MenuPrincipal = () => {
             toast.error("Error de conexión con la base de datos.");
           }
         }
-        if (!jugadorOk) { salidaLibre.current = true; navigate("/login"); }
+        if (!jugadorOk) { salidaLibre.current = true; navigate("/login", { replace: true }); }
       }
       setCargando(false);
     });
 
     return () => unsubscribe();
   }, [navigate]);
+
+  // Tras cerrar sesión se vuelve a la primera entrada del historial y se reemplaza por la página principal:
+  // así "atrás" ya no regresa al menú ni al login, sino que sale de la app.
+  const volverAlInicio = () => {
+    let hecho = false;
+    const terminar = () => {
+      if (hecho) return;
+      hecho = true;
+      window.location.replace(`${window.location.pathname}${window.location.search}#/`);
+      window.location.reload();
+    };
+    const pasos = window.history.state?.idx ?? 0;
+    if (pasos > 0) {
+      window.addEventListener("popstate", terminar, { once: true });
+      window.history.go(-pasos);
+      setTimeout(terminar, 1000); // por si el navegador no avisa
+    } else {
+      terminar();
+    }
+  };
 
   const handleLogout = async () => {
     salidaLibre.current = true;
@@ -164,8 +184,7 @@ const MenuPrincipal = () => {
       sessionStorage.clear();
       // Se borran también los datos guardados en el celular (por si lo usa otra persona) y se recarga la app
       try { await terminate(db); await clearIndexedDbPersistence(db); } catch { /* si no se pudo borrar, igual se cierra la sesión */ }
-      window.location.hash = "#/";
-      window.location.reload();
+      volverAlInicio();
     } catch (error) {
       salidaLibre.current = false;
       console.error("Error al cerrar sesión:", error);
