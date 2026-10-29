@@ -2,7 +2,7 @@
   "name": "Pasanaku",
   "short_name": "Pasanaku",
   "description": "Organiza tu pasanaku: turnos, aportes y entrega del pozo en un solo lugar.",
-  "start_url": "./",
+  "start_url": "./#/menuPrincipal",
   "scope": "./",
   "display": "standalone",
   "background_color": "#4A8FD6",

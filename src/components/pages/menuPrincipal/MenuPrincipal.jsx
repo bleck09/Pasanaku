@@ -30,7 +30,7 @@ import Avatar from './Avatar';
 import Splash from './Splash';
 import AvisoSinConexion from './AvisoSinConexion';
 import { CLAVE_SESION, OMITIR_CLAVE } from './sesion';
-import { retroceder, useAtras } from './atras';
+import { conectarHistorial, esRetrocesoPropio, retroceder, useAtras } from './atras';
 
 import './MenuPrincipal.css';
 import './Responsive.css';
@@ -192,17 +192,33 @@ const MenuPrincipal = () => {
     });
   }, [bloqueo.state]);
 
-  // Se deja una entrada extra en el historial: "atrás" la consume, se cierra la pantalla más reciente y se vuelve a dejar.
-  // Así "atrás" sube de nivel (detalle → lista) y solo al final pregunta por cerrar sesión.
-  const dejarEntrada = () => navigate(`${ubicacion.pathname}${ubicacion.search}`, { state: { pkAtras: true } });
+  // "Atrás" del celular: cada pantalla abierta deja una entrada en el historial (ver atras.js) y "atrás" la cierra.
+  // Además se deja una entrada base: al llegar a ella (ya no hay nada que cerrar) se pregunta si quiere cerrar sesión.
+  const rutaActual = useRef("");
+  const contadorEntradas = useRef(0);
+  rutaActual.current = ubicacion.pathname;
+  // el router convierte en "reemplazo" un push a la misma dirección: por eso cada entrada lleva un número distinto (?pk=1, ?pk=2…)
+  const dejarEntrada = () => navigate(`${rutaActual.current}?pk=${++contadorEntradas.current}`, { state: { pkAtras: true } });
+  const accionesHistorial = useRef(null);
+  accionesHistorial.current = {
+    empujar: dejarEntrada,
+    volver: () => { if (salidaLibre.current) return false; navigate(-1); return true; },
+  };
+  // se conecta una sola vez (si se reconectara en cada render, las pantallas que se abren en ese mismo momento no encontrarían el historial)
+  useEffect(() => conectarHistorial({
+    empujar: () => accionesHistorial.current.empujar(),
+    volver: () => accionesHistorial.current.volver(),
+  }), []);
+
   useEffect(() => {
     if (!cargando && role && !armado.current) { dejarEntrada(); setTimeout(() => { armado.current = true; }, 0); }
   }, [cargando, role]);
 
   useEffect(() => {
     if (!armado.current || tipoNavegacion !== "POP" || salidaLibre.current) return;
+    if (esRetrocesoPropio()) return; // lo provocó la app al cerrar una pantalla con su botón
     if (document.querySelector(".pk-ocupado-fondo")) { dejarEntrada(); return; } // enviando un archivo: "atrás" no cierra nada
-    if (retroceder()) { dejarEntrada(); return; }
+    if (retroceder()) return;
     preguntarSalir().then((ok) => {
       if (ok) { salidaLibre.current = true; handleLogout(); } else dejarEntrada();
     });
