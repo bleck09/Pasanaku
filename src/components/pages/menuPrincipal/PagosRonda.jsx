@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useAtras } from "./atras";
 import PropTypes from "prop-types";
 import toast from "react-hot-toast";
 import { deleteDoc, doc, setDoc, updateDoc } from "firebase/firestore";
@@ -30,6 +31,7 @@ Estado.propTypes = { r: PropTypes.object.isRequired };
 const PagosRonda = ({ grupo, ronda, lista, pagos, multas = [], soloLectura = false, abrirId = null }) => {
   const fotos = usePerfiles();
   const [abierto, setAbierto] = useState(abrirId); // id del participante cuyo detalle se muestra
+  useAtras(Boolean(abierto), () => setAbierto(null));
   const [registrando, setRegistrando] = useState(null); // { persona, ronda, falta }
   const [aviso, setAviso] = useState(null); // aviso con sonido tras confirmar o registrar un pago
   const [visor, setVisor] = useState(null);

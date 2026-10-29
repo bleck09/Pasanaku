@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { useAtras } from "./atras";
 import { FiAlertTriangle, FiHelpCircle } from "react-icons/fi";
 import "./Pasanaku.css";
 
@@ -16,6 +17,7 @@ export const confirmar = (opciones) =>
 
 export const ConfirmHost = () => {
   const [dialogo, setDialogo] = useState(null);
+  useAtras(Boolean(dialogo), () => { dialogo?.resolver(false); setDialogo(null); });
 
   useEffect(() => {
     globalThis[CLAVE_HOST] = setDialogo;

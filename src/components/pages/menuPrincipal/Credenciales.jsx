@@ -1,4 +1,5 @@
 import React from "react";
+import { useAtras } from "./atras";
 import PropTypes from "prop-types";
 import toast from "react-hot-toast";
 import { FiCopy, FiX, FiKey } from "react-icons/fi";
@@ -6,6 +7,7 @@ import "./Pasanaku.css";
 
 // Muestra una sola vez usuario y contraseña temporal (de una o varias personas) para que el administrador los entregue
 const Credenciales = ({ datos, onCerrar }) => {
+  useAtras(true, onCerrar);
   const lista = Array.isArray(datos) ? datos : [datos];
   const enlace = `${window.location.origin}${import.meta.env.BASE_URL}#/login`;
   const mensaje = (d) => `Pasanaku\nUsuario: ${d.usuario}\nContraseña temporal: ${d.clave}\nEntra aquí: ${enlace}\n(Al entrar tendrás que crear tu propia contraseña)`;

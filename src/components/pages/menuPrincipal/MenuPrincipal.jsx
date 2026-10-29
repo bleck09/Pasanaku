@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, lazy, Suspense } from 'react';
-import { useBlocker, useNavigate } from 'react-router-dom';
+import { useBlocker, useLocation, useNavigate, useNavigationType } from 'react-router-dom';
 import toast from "react-hot-toast";
 
 // Firebase
@@ -30,6 +30,7 @@ import Avatar from './Avatar';
 import Splash from './Splash';
 import AvisoSinConexion from './AvisoSinConexion';
 import { CLAVE_SESION, OMITIR_CLAVE } from './sesion';
+import { retroceder, useAtras } from './atras';
 
 import './MenuPrincipal.css';
 import './Responsive.css';
@@ -54,6 +55,9 @@ const MenuPrincipal = () => {
   }, []);
 
   const navigate = useNavigate();
+  const ubicacion = useLocation();
+  const tipoNavegacion = useNavigationType();
+  const armado = useRef(false); // ya se agregó la entrada extra del historial que permite interceptar "atrás"
   const salidaLibre = useRef(false); // true cuando la salida es intencional (cerrar sesión o no hay sesión)
   // Si presiona "atrás" (o intenta irse de la app) se pregunta antes: así no se cierra la sesión sin querer
   const bloqueo = useBlocker(({ currentLocation, nextLocation }) => !salidaLibre.current && currentLocation.pathname !== nextLocation.pathname);
@@ -188,6 +192,22 @@ const MenuPrincipal = () => {
     });
   }, [bloqueo.state]);
 
+  // Se deja una entrada extra en el historial: "atrás" la consume, se cierra la pantalla más reciente y se vuelve a dejar.
+  // Así "atrás" sube de nivel (detalle → lista) y solo al final pregunta por cerrar sesión.
+  const dejarEntrada = () => navigate(`${ubicacion.pathname}${ubicacion.search}`, { state: { pkAtras: true } });
+  useEffect(() => {
+    if (!cargando && role && !armado.current) { dejarEntrada(); setTimeout(() => { armado.current = true; }, 0); }
+  }, [cargando, role]);
+
+  useEffect(() => {
+    if (!armado.current || tipoNavegacion !== "POP" || salidaLibre.current) return;
+    if (document.querySelector(".pk-ocupado-fondo")) { dejarEntrada(); return; } // enviando un archivo: "atrás" no cierra nada
+    if (retroceder()) { dejarEntrada(); return; }
+    preguntarSalir().then((ok) => {
+      if (ok) { salidaLibre.current = true; handleLogout(); } else dejarEntrada();
+    });
+  }, [ubicacion.key]);
+
   const itemsPermitidos = menuItems.filter((item) => item.roles.includes(role));
   // Las opciones se agrupan por sección, en el orden en que aparecen
   const secciones = itemsPermitidos.reduce((lista, item) => {
@@ -195,6 +215,7 @@ const MenuPrincipal = () => {
     if (existente) existente.items.push(item); else lista.push({ nombre: item.seccion, items: [item] });
     return lista;
   }, []);
+  useAtras(Boolean(itemsPermitidos[0]) && activeView !== itemsPermitidos[0].id && activeView !== "", () => setActiveView(itemsPermitidos[0].id));
   const vistaActual = menuItems.find((item) => item.id === activeView);
   const fechaHoy = new Date().toLocaleDateString("es-BO", { weekday: "long", day: "numeric", month: "long" });
   const primerNombre = (userName || "").split(" ")[0];

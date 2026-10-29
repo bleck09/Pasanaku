@@ -1,4 +1,5 @@
 import React, { useEffect } from "react";
+import { useAtras } from "./atras";
 import PropTypes from "prop-types";
 import { FiX, FiExternalLink, FiCheck, FiClock, FiFileText, FiEdit3, FiCalendar, FiGift, FiUser } from "react-icons/fi";
 import { esPdf } from "./imagenes";
@@ -7,6 +8,7 @@ import "./Pasanaku.css";
 
 // Detalle de un pago: monto, fecha y hora, estado y el comprobante (imagen o PDF) sin salir del sitio
 const VisorImagen = ({ pago, onCerrar }) => {
+  useAtras(true, onCerrar);
   useEffect(() => {
     const tecla = (e) => { if (e.key === "Escape") onCerrar(); };
     window.addEventListener("keydown", tecla);

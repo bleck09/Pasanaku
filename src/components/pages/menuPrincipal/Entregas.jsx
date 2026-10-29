@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useAtras } from "./atras";
 import { FiGift, FiEye, FiSearch, FiDollarSign, FiChevronRight, FiArrowLeft, FiUser } from "react-icons/fi";
 import Avatar from "./Avatar";
 import VisorImagen from "./VisorImagen";
@@ -20,6 +21,7 @@ const Entregas = () => {
   const fotos = usePerfiles();
   const [q, setQ] = useState("");
   const [abierto, setAbierto] = useState(null); // id del pasanaku cuyas entregas se ven
+  useAtras(Boolean(abierto), () => { setAbierto(null); setQ(""); });
   const [ver, setVer] = useState(null);
 
   const filas = entregas

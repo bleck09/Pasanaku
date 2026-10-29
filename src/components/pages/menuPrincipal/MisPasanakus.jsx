@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useAtras } from "./atras";
 import PropTypes from "prop-types";
 import { idSesion } from "./sesion";
 import { FiCheck, FiGift, FiClock, FiImage, FiFileText, FiDownload, FiLayers, FiPlay, FiAward, FiList, FiDollarSign, FiUsers, FiSearch, FiEye, FiGrid, FiCalendar, FiAlertTriangle } from "react-icons/fi";
@@ -51,6 +52,8 @@ const Detalle = ({ grupo, uid, onVolver }) => {
   const fotos = usePerfiles();
   const { cuenta: cuentaPago } = useCuentaPago(grupo.id);
   const [verQRPago, setVerQRPago] = useState(false);
+  useAtras(Boolean(modal), () => setModal(null));
+  useAtras(vista !== "resumen", () => setVista("resumen"));
 
   const lista = [...participantes].sort((a, b) => a.turno - b.turno);
   const total = lista.length;
@@ -368,6 +371,7 @@ const MisPasanakus = () => {
   const { docs: todos } = useColeccion("participantes");
   const fotos = usePerfiles();
   const [abiertoId, setAbiertoId] = useState(null);
+  useAtras(Boolean(abiertoId), () => setAbiertoId(null));
   const [q, setQ] = useState("");
   const [filtro, setFiltro] = useState("todos");
   const [modo, setModo] = useState("tarjetas");

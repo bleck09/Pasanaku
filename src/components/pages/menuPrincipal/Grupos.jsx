@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { useAtras } from "./atras";
 import PropTypes from "prop-types";
 import toast from "react-hot-toast";
 import { addDoc, collection, doc, getDocs, query, updateDoc, where, writeBatch } from "firebase/firestore";
@@ -36,6 +37,10 @@ const Grupos = ({ destino = null, onDestinoUsado = () => {} }) => {
   const [detalleId, setDetalleId] = useState(destino?.grupoId || null); // grupo abierto en su tablero
   const [detalleTab, setDetalleTab] = useState(destino ? "pagos" : null); // pestaña con la que se abre el tablero
   const [destinoActivo, setDestinoActivo] = useState(destino); // persona y ronda a revisar al abrir el tablero
+  useAtras(Boolean(detalleId), () => { setDetalleId(null); setDetalleTab(null); setDestinoActivo(null); });
+  useAtras(Boolean(panelId), () => setPanelId(null));
+  useAtras(form !== null, () => setForm(null));
+  useAtras(Boolean(entregando), () => setEntregando(null));
   const grupoDetalle = grupos.find((g) => g.id === detalleId);
 
   // Si ya estábamos en esta sección y llega un destino nuevo (desde la campana), lo abrimos

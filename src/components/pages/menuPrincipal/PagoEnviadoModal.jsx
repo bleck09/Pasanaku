@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo } from "react";
+import { useAtras } from "./atras";
 import PropTypes from "prop-types";
 import { FiArrowRight } from "react-icons/fi";
 import { leerSonido, sonidoPagoEnviado } from "./sonido";
@@ -9,6 +10,7 @@ const COLORES = ["#2E9A6B", "#4A8FD6", "#E0A03F", "#8E74D4", "#3F9BB8", "#CE7FAA
 
 // Aviso a pantalla completa de que el pago se envió: check animado, confeti y un sonido corto
 const PagoEnviadoModal = ({ monto, ronda, titulo = "¡Pago enviado!", texto, onCerrar }) => {
+  useAtras(true, onCerrar);
   useEffect(() => {
     if (leerSonido()) sonidoPagoEnviado();
   }, []);

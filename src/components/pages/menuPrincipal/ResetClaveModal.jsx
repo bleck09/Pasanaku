@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useAtras } from "./atras";
 import PropTypes from "prop-types";
 import toast from "react-hot-toast";
 import { FiX, FiRefreshCw, FiKey, FiCopy, FiCheck, FiAlertTriangle } from "react-icons/fi";
@@ -7,6 +8,7 @@ import "./Pasanaku.css";
 
 // El administrador define una contraseña temporal nueva. No puede ver la actual: solo reemplazarla.
 const ResetClaveModal = ({ persona, onListo, onCerrar }) => {
+  useAtras(true, onCerrar);
   const [clave, setClave] = useState(generarClave());
   const [guardando, setGuardando] = useState(false);
   const [paso, setPaso] = useState("datos"); // datos | confirmar

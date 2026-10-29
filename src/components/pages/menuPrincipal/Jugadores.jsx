@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useAtras } from "./atras";
 import toast from "react-hot-toast";
 import { FiUserPlus, FiRefreshCw, FiCopy, FiKey, FiEye, FiArrowLeft, FiSearch, FiEdit2, FiLayers, FiChevronRight } from "react-icons/fi";
 import { collection, doc, getDocs, query, updateDoc, where, writeBatch } from "firebase/firestore";
@@ -34,6 +35,7 @@ const Jugadores = () => {
   const [credenciales, setCredenciales] = useState(null);
   const [resetPara, setResetPara] = useState(null);
   const [creando, setCreando] = useState(false); // la creación es una hoja aparte
+  useAtras(creando, () => setCreando(false));
   const [q, setQ] = useState("");
   const [verJuega, setVerJuega] = useState(null); // persona cuyos pasanakus se muestran en una ventana
   const fotos = usePerfiles();

@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useAtras } from "./atras";
 import PropTypes from "prop-types";
 import { FiCheck, FiClock, FiDollarSign, FiCalendar, FiGift, FiPlay, FiImage, FiGrid, FiInfo, FiHome, FiAperture, FiEye, FiCreditCard, FiRefreshCw, FiEdit2 } from "react-icons/fi";
 import { describirFrecuencia, esConfirmado, estadoGrupo, estaIniciado, resumenPago, fechaRonda, formatFecha, money, useColeccion } from "./pasanakuUtils";
@@ -37,6 +38,8 @@ const DetalleGrupo = ({ grupo, onVolver, tabInicial = null, destino = null }) =>
   const [modoOrden, setModoOrden] = useState("ruleta"); // ruleta | manual
   const [resorteando, setResorteando] = useState(false); // volver a girar la ruleta aunque el orden ya esté guardado
   const fotos = usePerfiles();
+  useAtras(Boolean(modal), () => setModal(null));
+  useAtras(Boolean(entregando), () => setEntregando(null));
 
   const lista = [...participantes].sort((a, b) => a.turno - b.turno);
   const n = grupo.cupos || lista.length;

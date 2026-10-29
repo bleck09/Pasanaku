@@ -1,10 +1,12 @@
 import React, { useEffect } from "react";
+import { useAtras } from "./atras";
 import PropTypes from "prop-types";
 import { FiX } from "react-icons/fi";
 import "./Pasanaku.css";
 
 // Ventana emergente estándar (se cierra con la X, con Esc o haciendo clic fuera)
 const Modal = ({ titulo, subtitulo, ancho = 760, onCerrar, children }) => {
+  useAtras(true, onCerrar);
   useEffect(() => {
     const tecla = (e) => { if (e.key === "Escape") onCerrar(); };
     window.addEventListener("keydown", tecla);
